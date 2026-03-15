@@ -30,36 +30,40 @@ If an existing fragment does not fit, create a new vendor-specific one instead o
 
 ## Watch Types
 
-Use `github_release` for GitHub release feeds:
+For GitHub release feeds, keep the human-authored fragment minimal:
 
 ```json
 {
-  "id": "myvendor-myproject-release",
-  "kind": "github_release",
-  "name": "MyVendor MyProject release",
-  "owner": "myvendor",
-  "repo": "MyProject",
-  "notes": "Review MyProject guidance when a release changes APIs or integration patterns.",
+  "repo": "https://github.com/myvendor/MyProject",
   "skills": [
     "dotnet-myproject"
   ]
 }
 ```
 
-Use `http_document` for stable docs pages:
+That is enough for automation.
+`scripts/generate_upstream_watch.py` derives `id`, `kind`, `name`, `owner`, `repo`, and a default `notes` value.
+
+Add extra fields only when needed:
+
+- `match_tag_regex`
+- `exclude_tag_regex`
+- `include_prereleases`
+- `notes`
+
+Use `http_document` or a simple `url` entry for stable docs pages:
 
 ```json
 {
-  "id": "myproject-docs",
-  "kind": "http_document",
-  "name": "MyProject documentation",
   "url": "https://learn.microsoft.com/example/myproject/overview",
-  "notes": "Review MyProject guidance when the official overview changes.",
   "skills": [
     "dotnet-myproject"
   ]
 }
 ```
+
+For documentation watches, the generator can derive `id`, `kind`, `name`, and default `notes` too.
+Keep explicit `name` or `notes` only when the default wording would be unclear.
 
 Add `match_tag_regex` when a repo publishes multiple release streams and you only want one of them.
 

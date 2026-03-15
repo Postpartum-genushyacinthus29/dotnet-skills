@@ -274,14 +274,22 @@ The upstream automation exists so the skill catalog stays current without requir
 Human-maintained configuration lives in [`.github/upstream-watch.d/`](/Users/ksemenenko/Developer/dotnet-skills/.github/upstream-watch.d).
 The generated workflow input lives in [`.github/upstream-watch.json`](/Users/ksemenenko/Developer/dotnet-skills/.github/upstream-watch.json).
 
-Each watch entry should include:
+Keep human-authored fragments short.
 
-- `id`
-- `kind`
-- `name`
-- source details such as `owner` + `repo`, or `url`
+For GitHub release watches, the preferred fragment shape is only:
+
+- `repo`: GitHub repository URL or `owner/repo`
+- `skills`: affected `dotnet-*` skills
+
+The generator derives `id`, `kind`, `name`, `owner`, `repo`, and default `notes`.
+Use extra fields only when you actually need them, for example `match_tag_regex`.
+
+For documentation watches, keep the fragment simple as well:
+
+- `url`
 - `skills`
-- `notes`
+
+The generator can derive `id`, `kind`, `name`, and default `notes` for these too, although explicit names are still acceptable when a friendlier label helps.
 
 Fragment rules:
 
@@ -396,6 +404,7 @@ This repository should behave like a maintainable documentation-and-automation s
 - Agent-aware install flows that understand Codex, Claude, Copilot, and Gemini instead of assuming one shared folder layout.
 - Official agent standards and native agent layouts instead of repo-local pseudo-standards.
 - Fragmented upstream-watch config under [`.github/upstream-watch.d/`](/Users/ksemenenko/Developer/dotnet-skills/.github/upstream-watch.d) instead of one giant hand-maintained file.
+- Minimal human-authored watch fragments, especially for GitHub releases: repository link plus related skills, with generated ids and names.
 - English-only durable docs and skill content.
 - Catalog manifest generation in CI release workflows instead of relying on contributor-local regeneration.
 

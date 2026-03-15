@@ -79,6 +79,21 @@ Use these fragment conventions:
 - [`.github/upstream-watch.d/30-docs.json`](/Users/ksemenenko/Developer/dotnet-skills/.github/upstream-watch.d/30-docs.json) for documentation pages
 - `40-<vendor>.json` for any other vendor or project family
 
+For GitHub release watches, keep the fragment human-readable and minimal:
+
+```json
+{
+  "repo": "https://github.com/managedcode/Storage",
+  "skills": [
+    "dotnet-managedcode-storage"
+  ]
+}
+```
+
+That is enough.
+The generator derives the watch id, kind, owner, repo name, display name, and default notes.
+Only add extra fields when you actually need them, for example `match_tag_regex` for mixed release streams.
+
 If you add a new library or framework and want this repo to keep watching it, the actual how-to is in [CONTRIBUTING.md](/Users/ksemenenko/Developer/dotnet-skills/CONTRIBUTING.md#upstream-watch-entries).
 
 ## Agent Support

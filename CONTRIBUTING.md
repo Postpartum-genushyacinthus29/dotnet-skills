@@ -36,6 +36,21 @@ The skill must be understandable by someone who has never used your project befo
 For upstream watch configuration, do not append everything to one huge root JSON file.
 Add the watch to the right fragment under [`.github/upstream-watch.d/`](/Users/ksemenenko/Developer/dotnet-skills/.github/upstream-watch.d), then regenerate [`.github/upstream-watch.json`](/Users/ksemenenko/Developer/dotnet-skills/.github/upstream-watch.json).
 
+For GitHub release monitoring, the normal fragment entry is intentionally tiny:
+
+```json
+{
+  "repo": "https://github.com/managedcode/Storage",
+  "skills": [
+    "dotnet-managedcode-storage"
+  ]
+}
+```
+
+That is enough for automation.
+The generator derives the watch id, kind, owner, repo name, display name, and default notes.
+Only add extra fields such as `match_tag_regex` when the repository publishes multiple release streams.
+
 ## Required Skill Metadata
 
 Every `SKILL.md` must include these frontmatter fields:
@@ -273,33 +288,24 @@ flowchart LR
 
 ### GitHub Release Watch Example
 
-Use `kind: "github_release"` when you want automation to watch GitHub releases for a repository:
+Use a GitHub repository link plus the related skills when you want automation to watch GitHub releases for a repository:
 
 ```json
 {
-  "id": "myvendor-myproject-release",
-  "kind": "github_release",
-  "name": "MyVendor MyProject release",
-  "owner": "myvendor",
-  "repo": "MyProject",
-  "notes": "Review MyProject guidance when a new release changes APIs, runtime requirements, or recommended integration patterns.",
+  "repo": "https://github.com/myvendor/MyProject",
   "skills": [
     "dotnet-myproject"
   ]
 }
 ```
 
-Add `match_tag_regex` when the repo publishes multiple streams and you only want the .NET-facing tags:
+The generator fills in the rest.
+Add `match_tag_regex` only when the repo publishes multiple streams and you need the .NET-facing tags only:
 
 ```json
 {
-  "id": "myvendor-myproject-release",
-  "kind": "github_release",
-  "name": "MyVendor MyProject release",
-  "owner": "myvendor",
-  "repo": "MyProject",
+  "repo": "https://github.com/myvendor/MyProject",
   "match_tag_regex": "^dotnet-",
-  "notes": "Review the .NET integration skill when the .NET release stream changes.",
   "skills": [
     "dotnet-myproject"
   ]
@@ -308,15 +314,11 @@ Add `match_tag_regex` when the repo publishes multiple streams and you only want
 
 ### Documentation Watch Example
 
-Use `kind: "http_document"` when you want automation to watch a stable documentation page:
+Use a URL plus related skills when you want automation to watch a stable documentation page:
 
 ```json
 {
-  "id": "myproject-docs",
-  "kind": "http_document",
-  "name": "MyProject documentation",
   "url": "https://learn.microsoft.com/example/myproject/overview",
-  "notes": "Review the MyProject skill when the official overview page changes.",
   "skills": [
     "dotnet-myproject"
   ]
@@ -325,16 +327,13 @@ Use `kind: "http_document"` when you want automation to watch a stable documenta
 
 ### Required Fields
 
-Every watch entry should make these points clear:
+For human-authored fragments, every watch entry must define:
 
-- `id`: stable unique identifier used by automation and issue tracking
-- `kind`: `github_release` or `http_document`
-- `name`: human-readable source name
-- source coordinates:
-  - `owner` and `repo` for `github_release`
-  - `url` for `http_document`
-- `notes`: why a change matters
-- `skills`: which `dotnet-*` skills should be reviewed
+- `repo` plus `skills` for a GitHub release watch
+- `url` plus `skills` for a documentation watch
+
+The generator derives `id`, `kind`, `name`, and default `notes`.
+You can still override those fields explicitly, but do it only when the default output would be unclear.
 
 For project-specific libraries, the `skills` list must point to the dedicated project skill.
 Do not use umbrella skills such as `dotnet`, `dotnet-architecture`, or `dotnet-orleans` as placeholders for a concrete library watch.

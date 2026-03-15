@@ -16,10 +16,10 @@
     {
       "id": "dotnet-sdk-release",
       "kind": "github_release",
-      "name": ".NET SDK release",
+      "name": "dotnet/sdk release",
       "owner": "dotnet",
       "repo": "sdk",
-      "notes": "Review project setup, SDK assumptions, and C# guidance when a new SDK release ships.",
+      "notes": "Review the linked skills when dotnet/sdk ships a new release.",
       "skills": [
         "dotnet",
         "dotnet-project-setup",
@@ -29,10 +29,10 @@
     {
       "id": "dotnet-runtime-release",
       "kind": "github_release",
-      "name": ".NET runtime release",
+      "name": "dotnet/runtime release",
       "owner": "dotnet",
       "repo": "runtime",
-      "notes": "Review general .NET guidance, worker behavior, and runtime compatibility notes.",
+      "notes": "Review the linked skills when dotnet/runtime ships a new release.",
       "skills": [
         "dotnet",
         "dotnet-worker-services",
@@ -42,10 +42,10 @@
     {
       "id": "aspnetcore-release",
       "kind": "github_release",
-      "name": "ASP.NET Core release",
+      "name": "dotnet/aspnetcore release",
       "owner": "dotnet",
       "repo": "aspnetcore",
-      "notes": "Review web-stack skills when ASP.NET Core ships platform changes or release notes.",
+      "notes": "Review the linked skills when dotnet/aspnetcore ships a new release.",
       "skills": [
         "dotnet-aspnet-core",
         "dotnet-minimal-apis",
@@ -58,10 +58,10 @@
     {
       "id": "dotnet-maui-release",
       "kind": "github_release",
-      "name": ".NET MAUI release",
+      "name": "dotnet/maui release",
       "owner": "dotnet",
       "repo": "maui",
-      "notes": "Review cross-platform UI guidance when MAUI ships new features or platform notes.",
+      "notes": "Review the linked skills when dotnet/maui ships a new release.",
       "skills": [
         "dotnet-maui"
       ]
@@ -69,10 +69,10 @@
     {
       "id": "windows-app-sdk-release",
       "kind": "github_release",
-      "name": "Windows App SDK release",
+      "name": "microsoft/WindowsAppSDK release",
       "owner": "microsoft",
       "repo": "WindowsAppSDK",
-      "notes": "Review WinUI and Windows-specific guidance when the Windows App SDK changes.",
+      "notes": "Review the linked skills when microsoft/WindowsAppSDK ships a new release.",
       "skills": [
         "dotnet-winui"
       ]
@@ -80,10 +80,10 @@
     {
       "id": "efcore-release",
       "kind": "github_release",
-      "name": "Entity Framework Core release",
+      "name": "dotnet/efcore release",
       "owner": "dotnet",
       "repo": "efcore",
-      "notes": "Review EF Core behavior, migration guidance, and provider assumptions.",
+      "notes": "Review the linked skills when dotnet/efcore ships a new release.",
       "skills": [
         "dotnet-entity-framework-core",
         "dotnet-entity-framework6"
@@ -92,10 +92,10 @@
     {
       "id": "orleans-release",
       "kind": "github_release",
-      "name": "Microsoft Orleans release",
+      "name": "dotnet/orleans release",
       "owner": "dotnet",
       "repo": "orleans",
-      "notes": "Review Orleans guidance when grain runtime, hosting, or provider support changes.",
+      "notes": "Review the linked skills when dotnet/orleans ships a new release.",
       "skills": [
         "dotnet-orleans",
         "dotnet-aspire"
@@ -107,7 +107,7 @@
       "name": "dotnet/extensions release",
       "owner": "dotnet",
       "repo": "extensions",
-      "notes": "Review Microsoft.Extensions guidance and AI-related extensions integration notes.",
+      "notes": "Review the linked skills when dotnet/extensions ships a new release.",
       "skills": [
         "dotnet-microsoft-extensions",
         "dotnet-microsoft-extensions-ai"
@@ -116,22 +116,22 @@
     {
       "id": "azure-functions-dotnet-worker-release",
       "kind": "github_release",
-      "name": "Azure Functions .NET worker release",
+      "name": "Azure/azure-functions-dotnet-worker release",
       "owner": "Azure",
       "repo": "azure-functions-dotnet-worker",
-      "match_tag_regex": "^\\d+\\.\\d+\\.\\d+$",
-      "notes": "Review isolated worker guidance and package version baselines when the worker runtime changes.",
+      "notes": "Review the linked skills when Azure/azure-functions-dotnet-worker ships a new release.",
       "skills": [
         "dotnet-azure-functions"
-      ]
+      ],
+      "match_tag_regex": "^\\d+\\.\\d+\\.\\d+$"
     },
     {
       "id": "mlnet-release",
       "kind": "github_release",
-      "name": "ML.NET release",
+      "name": "dotnet/machinelearning release",
       "owner": "dotnet",
       "repo": "machinelearning",
-      "notes": "Review ML.NET guidance when the training, inference, or CLI toolchain changes.",
+      "notes": "Review the linked skills when dotnet/machinelearning ships a new release.",
       "skills": [
         "dotnet-mlnet"
       ]
@@ -139,34 +139,34 @@
     {
       "id": "semantic-kernel-release",
       "kind": "github_release",
-      "name": "Semantic Kernel release",
+      "name": "microsoft/semantic-kernel release",
       "owner": "microsoft",
       "repo": "semantic-kernel",
-      "match_tag_regex": "^dotnet-",
-      "notes": "Review Semantic Kernel guidance because APIs and orchestration patterns evolve quickly.",
+      "notes": "Review the linked skills when microsoft/semantic-kernel ships a new release.",
       "skills": [
         "dotnet-semantic-kernel"
-      ]
+      ],
+      "match_tag_regex": "^dotnet-"
     },
     {
       "id": "agent-framework-release",
       "kind": "github_release",
-      "name": "Microsoft Agent Framework release",
+      "name": "microsoft/agent-framework release",
       "owner": "microsoft",
       "repo": "agent-framework",
-      "match_tag_regex": "^dotnet-",
-      "notes": "Review agent orchestration guidance and package maturity when Agent Framework releases change.",
+      "notes": "Review the linked skills when microsoft/agent-framework ships a new release.",
       "skills": [
         "dotnet-microsoft-agent-framework"
-      ]
+      ],
+      "match_tag_regex": "^dotnet-"
     },
     {
       "id": "managedcode-storage-release",
       "kind": "github_release",
-      "name": "ManagedCode Storage release",
+      "name": "managedcode/Storage release",
       "owner": "managedcode",
       "repo": "Storage",
-      "notes": "Review the dedicated ManagedCode.Storage skill when the library ships a new release.",
+      "notes": "Review the linked skills when managedcode/Storage ships a new release.",
       "skills": [
         "dotnet-managedcode-storage"
       ]
@@ -174,10 +174,10 @@
     {
       "id": "managedcode-communication-release",
       "kind": "github_release",
-      "name": "ManagedCode Communication release",
+      "name": "managedcode/Communication release",
       "owner": "managedcode",
       "repo": "Communication",
-      "notes": "Review the dedicated ManagedCode.Communication skill when the library changes result patterns or integration guidance.",
+      "notes": "Review the linked skills when managedcode/Communication ships a new release.",
       "skills": [
         "dotnet-managedcode-communication"
       ]
@@ -185,10 +185,10 @@
     {
       "id": "managedcode-markitdown-release",
       "kind": "github_release",
-      "name": "ManagedCode MarkItDown release",
+      "name": "managedcode/markitdown release",
       "owner": "managedcode",
       "repo": "markitdown",
-      "notes": "Review the dedicated ManagedCode.MarkItDown skill when document-conversion behavior or integration guidance changes.",
+      "notes": "Review the linked skills when managedcode/markitdown ships a new release.",
       "skills": [
         "dotnet-managedcode-markitdown"
       ]
@@ -196,10 +196,10 @@
     {
       "id": "managedcode-orleans-signalr-release",
       "kind": "github_release",
-      "name": "ManagedCode Orleans.SignalR release",
+      "name": "managedcode/Orleans.SignalR release",
       "owner": "managedcode",
       "repo": "Orleans.SignalR",
-      "notes": "Review the dedicated ManagedCode.Orleans.SignalR skill when the integration library ships a new release.",
+      "notes": "Review the linked skills when managedcode/Orleans.SignalR ships a new release.",
       "skills": [
         "dotnet-managedcode-orleans-signalr"
       ]
@@ -207,10 +207,10 @@
     {
       "id": "managedcode-mimetypes-release",
       "kind": "github_release",
-      "name": "ManagedCode MimeTypes release",
+      "name": "managedcode/MimeTypes release",
       "owner": "managedcode",
       "repo": "MimeTypes",
-      "notes": "Review the dedicated ManagedCode.MimeTypes skill when MIME mapping or content-type guidance changes.",
+      "notes": "Review the linked skills when managedcode/MimeTypes ships a new release.",
       "skills": [
         "dotnet-managedcode-mimetypes"
       ]
@@ -218,10 +218,10 @@
     {
       "id": "managedcode-orleans-graph-release",
       "kind": "github_release",
-      "name": "ManagedCode Orleans.Graph release",
+      "name": "managedcode/Orleans.Graph release",
       "owner": "managedcode",
       "repo": "Orleans.Graph",
-      "notes": "Review the dedicated ManagedCode.Orleans.Graph skill when graph-oriented Orleans guidance changes.",
+      "notes": "Review the linked skills when managedcode/Orleans.Graph ships a new release.",
       "skills": [
         "dotnet-managedcode-orleans-graph"
       ]

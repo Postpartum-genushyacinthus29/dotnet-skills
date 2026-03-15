@@ -1,67 +1,37 @@
 {
   "watches": [
     {
-      "id": "managedcode-storage-release",
-      "kind": "github_release",
-      "name": "ManagedCode Storage release",
-      "owner": "managedcode",
-      "repo": "Storage",
-      "notes": "Review the dedicated ManagedCode.Storage skill when the library ships a new release.",
+      "repo": "https://github.com/managedcode/Storage",
       "skills": [
         "dotnet-managedcode-storage"
       ]
     },
     {
-      "id": "managedcode-communication-release",
-      "kind": "github_release",
-      "name": "ManagedCode Communication release",
-      "owner": "managedcode",
-      "repo": "Communication",
-      "notes": "Review the dedicated ManagedCode.Communication skill when the library changes result patterns or integration guidance.",
+      "repo": "https://github.com/managedcode/Communication",
       "skills": [
         "dotnet-managedcode-communication"
       ]
     },
     {
-      "id": "managedcode-markitdown-release",
-      "kind": "github_release",
-      "name": "ManagedCode MarkItDown release",
-      "owner": "managedcode",
-      "repo": "markitdown",
-      "notes": "Review the dedicated ManagedCode.MarkItDown skill when document-conversion behavior or integration guidance changes.",
+      "repo": "https://github.com/managedcode/markitdown",
       "skills": [
         "dotnet-managedcode-markitdown"
       ]
     },
     {
-      "id": "managedcode-orleans-signalr-release",
-      "kind": "github_release",
-      "name": "ManagedCode Orleans.SignalR release",
-      "owner": "managedcode",
-      "repo": "Orleans.SignalR",
-      "notes": "Review the dedicated ManagedCode.Orleans.SignalR skill when the integration library ships a new release.",
+      "repo": "https://github.com/managedcode/Orleans.SignalR",
       "skills": [
         "dotnet-managedcode-orleans-signalr"
       ]
     },
     {
-      "id": "managedcode-mimetypes-release",
-      "kind": "github_release",
-      "name": "ManagedCode MimeTypes release",
-      "owner": "managedcode",
-      "repo": "MimeTypes",
-      "notes": "Review the dedicated ManagedCode.MimeTypes skill when MIME mapping or content-type guidance changes.",
+      "repo": "https://github.com/managedcode/MimeTypes",
       "skills": [
         "dotnet-managedcode-mimetypes"
       ]
     },
     {
-      "id": "managedcode-orleans-graph-release",
-      "kind": "github_release",
-      "name": "ManagedCode Orleans.Graph release",
-      "owner": "managedcode",
-      "repo": "Orleans.Graph",
-      "notes": "Review the dedicated ManagedCode.Orleans.Graph skill when graph-oriented Orleans guidance changes.",
+      "repo": "https://github.com/managedcode/Orleans.Graph",
       "skills": [
         "dotnet-managedcode-orleans-graph"
       ]
