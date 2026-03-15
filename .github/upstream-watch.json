@@ -12,14 +12,10 @@
       "description": "Created or maintained by repository automation"
     }
   ],
-  "watches": [
+  "github_releases": [
     {
       "id": "dotnet-sdk-release",
-      "kind": "github_release",
-      "name": "dotnet/sdk release",
-      "owner": "dotnet",
-      "repo": "sdk",
-      "notes": "Review the linked skills when dotnet/sdk ships a new release.",
+      "source": "https://github.com/dotnet/sdk",
       "skills": [
         "dotnet",
         "dotnet-project-setup",
@@ -28,11 +24,7 @@
     },
     {
       "id": "dotnet-runtime-release",
-      "kind": "github_release",
-      "name": "dotnet/runtime release",
-      "owner": "dotnet",
-      "repo": "runtime",
-      "notes": "Review the linked skills when dotnet/runtime ships a new release.",
+      "source": "https://github.com/dotnet/runtime",
       "skills": [
         "dotnet",
         "dotnet-worker-services",
@@ -41,11 +33,7 @@
     },
     {
       "id": "aspnetcore-release",
-      "kind": "github_release",
-      "name": "dotnet/aspnetcore release",
-      "owner": "dotnet",
-      "repo": "aspnetcore",
-      "notes": "Review the linked skills when dotnet/aspnetcore ships a new release.",
+      "source": "https://github.com/dotnet/aspnetcore",
       "skills": [
         "dotnet-aspnet-core",
         "dotnet-minimal-apis",
@@ -57,33 +45,21 @@
     },
     {
       "id": "dotnet-maui-release",
-      "kind": "github_release",
-      "name": "dotnet/maui release",
-      "owner": "dotnet",
-      "repo": "maui",
-      "notes": "Review the linked skills when dotnet/maui ships a new release.",
+      "source": "https://github.com/dotnet/maui",
       "skills": [
         "dotnet-maui"
       ]
     },
     {
       "id": "windows-app-sdk-release",
-      "kind": "github_release",
-      "name": "microsoft/WindowsAppSDK release",
-      "owner": "microsoft",
-      "repo": "WindowsAppSDK",
-      "notes": "Review the linked skills when microsoft/WindowsAppSDK ships a new release.",
+      "source": "https://github.com/microsoft/WindowsAppSDK",
       "skills": [
         "dotnet-winui"
       ]
     },
     {
       "id": "efcore-release",
-      "kind": "github_release",
-      "name": "dotnet/efcore release",
-      "owner": "dotnet",
-      "repo": "efcore",
-      "notes": "Review the linked skills when dotnet/efcore ships a new release.",
+      "source": "https://github.com/dotnet/efcore",
       "skills": [
         "dotnet-entity-framework-core",
         "dotnet-entity-framework6"
@@ -91,11 +67,7 @@
     },
     {
       "id": "orleans-release",
-      "kind": "github_release",
-      "name": "dotnet/orleans release",
-      "owner": "dotnet",
-      "repo": "orleans",
-      "notes": "Review the linked skills when dotnet/orleans ships a new release.",
+      "source": "https://github.com/dotnet/orleans",
       "skills": [
         "dotnet-orleans",
         "dotnet-aspire"
@@ -103,11 +75,7 @@
     },
     {
       "id": "extensions-release",
-      "kind": "github_release",
-      "name": "dotnet/extensions release",
-      "owner": "dotnet",
-      "repo": "extensions",
-      "notes": "Review the linked skills when dotnet/extensions ships a new release.",
+      "source": "https://github.com/dotnet/extensions",
       "skills": [
         "dotnet-microsoft-extensions",
         "dotnet-microsoft-extensions-ai"
@@ -115,123 +83,76 @@
     },
     {
       "id": "azure-functions-dotnet-worker-release",
-      "kind": "github_release",
-      "name": "Azure/azure-functions-dotnet-worker release",
-      "owner": "Azure",
-      "repo": "azure-functions-dotnet-worker",
-      "notes": "Review the linked skills when Azure/azure-functions-dotnet-worker ships a new release.",
+      "source": "https://github.com/Azure/azure-functions-dotnet-worker",
+      "match_tag_regex": "^\\d+\\.\\d+\\.\\d+$",
       "skills": [
         "dotnet-azure-functions"
-      ],
-      "match_tag_regex": "^\\d+\\.\\d+\\.\\d+$"
+      ]
     },
     {
       "id": "mlnet-release",
-      "kind": "github_release",
-      "name": "dotnet/machinelearning release",
-      "owner": "dotnet",
-      "repo": "machinelearning",
-      "notes": "Review the linked skills when dotnet/machinelearning ships a new release.",
+      "source": "https://github.com/dotnet/machinelearning",
       "skills": [
         "dotnet-mlnet"
       ]
     },
     {
       "id": "semantic-kernel-release",
-      "kind": "github_release",
-      "name": "microsoft/semantic-kernel release",
-      "owner": "microsoft",
-      "repo": "semantic-kernel",
-      "notes": "Review the linked skills when microsoft/semantic-kernel ships a new release.",
+      "source": "https://github.com/microsoft/semantic-kernel",
+      "match_tag_regex": "^dotnet-",
       "skills": [
         "dotnet-semantic-kernel"
-      ],
-      "match_tag_regex": "^dotnet-"
+      ]
     },
     {
       "id": "agent-framework-release",
-      "kind": "github_release",
-      "name": "microsoft/agent-framework release",
-      "owner": "microsoft",
-      "repo": "agent-framework",
-      "notes": "Review the linked skills when microsoft/agent-framework ships a new release.",
+      "source": "https://github.com/microsoft/agent-framework",
+      "match_tag_regex": "^dotnet-",
       "skills": [
         "dotnet-microsoft-agent-framework"
-      ],
-      "match_tag_regex": "^dotnet-"
+      ]
     },
     {
-      "id": "managedcode-storage-release",
-      "kind": "github_release",
-      "name": "managedcode/Storage release",
-      "owner": "managedcode",
-      "repo": "Storage",
-      "notes": "Review the linked skills when managedcode/Storage ships a new release.",
+      "source": "https://github.com/managedcode/Storage",
       "skills": [
         "dotnet-managedcode-storage"
       ]
     },
     {
-      "id": "managedcode-communication-release",
-      "kind": "github_release",
-      "name": "managedcode/Communication release",
-      "owner": "managedcode",
-      "repo": "Communication",
-      "notes": "Review the linked skills when managedcode/Communication ships a new release.",
+      "source": "https://github.com/managedcode/Communication",
       "skills": [
         "dotnet-managedcode-communication"
       ]
     },
     {
-      "id": "managedcode-markitdown-release",
-      "kind": "github_release",
-      "name": "managedcode/markitdown release",
-      "owner": "managedcode",
-      "repo": "markitdown",
-      "notes": "Review the linked skills when managedcode/markitdown ships a new release.",
+      "source": "https://github.com/managedcode/markitdown",
       "skills": [
         "dotnet-managedcode-markitdown"
       ]
     },
     {
-      "id": "managedcode-orleans-signalr-release",
-      "kind": "github_release",
-      "name": "managedcode/Orleans.SignalR release",
-      "owner": "managedcode",
-      "repo": "Orleans.SignalR",
-      "notes": "Review the linked skills when managedcode/Orleans.SignalR ships a new release.",
+      "source": "https://github.com/managedcode/Orleans.SignalR",
       "skills": [
         "dotnet-managedcode-orleans-signalr"
       ]
     },
     {
-      "id": "managedcode-mimetypes-release",
-      "kind": "github_release",
-      "name": "managedcode/MimeTypes release",
-      "owner": "managedcode",
-      "repo": "MimeTypes",
-      "notes": "Review the linked skills when managedcode/MimeTypes ships a new release.",
+      "source": "https://github.com/managedcode/MimeTypes",
       "skills": [
         "dotnet-managedcode-mimetypes"
       ]
     },
     {
-      "id": "managedcode-orleans-graph-release",
-      "kind": "github_release",
-      "name": "managedcode/Orleans.Graph release",
-      "owner": "managedcode",
-      "repo": "Orleans.Graph",
-      "notes": "Review the linked skills when managedcode/Orleans.Graph ships a new release.",
+      "source": "https://github.com/managedcode/Orleans.Graph",
       "skills": [
         "dotnet-managedcode-orleans-graph"
       ]
-    },
+    }
+  ],
+  "documentation": [
     {
       "id": "dotnet-core-apps-docs",
-      "kind": "http_document",
-      "name": "learn.microsoft.comdotnet/core/apps documentation",
-      "url": "https://learn.microsoft.com/dotnet/core/apps",
-      "notes": "Review the linked skills when https://learn.microsoft.com/dotnet/core/apps changes.",
+      "source": "https://learn.microsoft.com/dotnet/core/apps",
       "skills": [
         "dotnet",
         "dotnet-project-setup"
@@ -239,10 +160,7 @@
     },
     {
       "id": "aspnetcore-overview-docs",
-      "kind": "http_document",
-      "name": "learn.microsoft.comaspnet/core/overview documentation",
-      "url": "https://learn.microsoft.com/aspnet/core/overview?view=aspnetcore-10.0",
-      "notes": "Review the linked skills when https://learn.microsoft.com/aspnet/core/overview?view=aspnetcore-10.0 changes.",
+      "source": "https://learn.microsoft.com/aspnet/core/overview?view=aspnetcore-10.0",
       "skills": [
         "dotnet-aspnet-core",
         "dotnet-minimal-apis",
@@ -254,40 +172,28 @@
     },
     {
       "id": "maui-overview-docs",
-      "kind": "http_document",
-      "name": "learn.microsoft.comdotnet/maui/what-is-maui documentation",
-      "url": "https://learn.microsoft.com/dotnet/maui/what-is-maui?view=net-maui-10.0",
-      "notes": "Review the linked skills when https://learn.microsoft.com/dotnet/maui/what-is-maui?view=net-maui-10.0 changes.",
+      "source": "https://learn.microsoft.com/dotnet/maui/what-is-maui?view=net-maui-10.0",
       "skills": [
         "dotnet-maui"
       ]
     },
     {
       "id": "wpf-overview-docs",
-      "kind": "http_document",
-      "name": "learn.microsoft.comdotnet/desktop/wpf/overview documentation",
-      "url": "https://learn.microsoft.com/dotnet/desktop/wpf/overview/",
-      "notes": "Review the linked skills when https://learn.microsoft.com/dotnet/desktop/wpf/overview/ changes.",
+      "source": "https://learn.microsoft.com/dotnet/desktop/wpf/overview/",
       "skills": [
         "dotnet-wpf"
       ]
     },
     {
       "id": "winforms-overview-docs",
-      "kind": "http_document",
-      "name": "learn.microsoft.comdotnet/desktop/winforms/overview documentation",
-      "url": "https://learn.microsoft.com/dotnet/desktop/winforms/overview/",
-      "notes": "Review the linked skills when https://learn.microsoft.com/dotnet/desktop/winforms/overview/ changes.",
+      "source": "https://learn.microsoft.com/dotnet/desktop/winforms/overview/",
       "skills": [
         "dotnet-winforms"
       ]
     },
     {
       "id": "ef-compare-docs",
-      "kind": "http_document",
-      "name": "learn.microsoft.comef/efcore-and-ef6 documentation",
-      "url": "https://learn.microsoft.com/ef/efcore-and-ef6/",
-      "notes": "Review the linked skills when https://learn.microsoft.com/ef/efcore-and-ef6/ changes.",
+      "source": "https://learn.microsoft.com/ef/efcore-and-ef6/",
       "skills": [
         "dotnet-entity-framework-core",
         "dotnet-entity-framework6"
@@ -295,30 +201,21 @@
     },
     {
       "id": "aspire-docs",
-      "kind": "http_document",
-      "name": "learn.microsoft.comdotnet/aspire documentation",
-      "url": "https://learn.microsoft.com/dotnet/aspire/",
-      "notes": "Review the linked skills when https://learn.microsoft.com/dotnet/aspire/ changes.",
+      "source": "https://learn.microsoft.com/dotnet/aspire/",
       "skills": [
         "dotnet-aspire"
       ]
     },
     {
       "id": "extensions-ai-docs",
-      "kind": "http_document",
-      "name": "learn.microsoft.comdotnet/ai/microsoft-extensions-ai documentation",
-      "url": "https://learn.microsoft.com/dotnet/ai/microsoft-extensions-ai",
-      "notes": "Review the linked skills when https://learn.microsoft.com/dotnet/ai/microsoft-extensions-ai changes.",
+      "source": "https://learn.microsoft.com/dotnet/ai/microsoft-extensions-ai",
       "skills": [
         "dotnet-microsoft-extensions-ai"
       ]
     },
     {
       "id": "agent-framework-docs",
-      "kind": "http_document",
-      "name": "learn.microsoft.comagent-framework/overview documentation",
-      "url": "https://learn.microsoft.com/agent-framework/overview/",
-      "notes": "Review the linked skills when https://learn.microsoft.com/agent-framework/overview/ changes.",
+      "source": "https://learn.microsoft.com/agent-framework/overview/",
       "skills": [
         "dotnet-microsoft-agent-framework"
       ]

@@ -21,7 +21,7 @@ Please contribute:
 
 If you want people to use your library well, please add:
 
-1. Your project to the upstream watch fragments in [`.github/upstream-watch.d/`](/Users/ksemenenko/Developer/dotnet-skills/.github/upstream-watch.d)
+1. Your project to [`.github/upstream-watch.json`](/Users/ksemenenko/Developer/dotnet-skills/.github/upstream-watch.json)
 2. A dedicated skill under [`skills/`](/Users/ksemenenko/Developer/dotnet-skills/skills) when the project is important enough to justify one
 3. Clear guidance in that skill about:
    - what the library is
@@ -33,10 +33,12 @@ If you want people to use your library well, please add:
 
 The skill must be understandable by someone who has never used your project before.
 
-For upstream watch configuration, do not append everything to one huge root JSON file.
-Add the watch to the right fragment under [`.github/upstream-watch.d/`](/Users/ksemenenko/Developer/dotnet-skills/.github/upstream-watch.d), then regenerate [`.github/upstream-watch.json`](/Users/ksemenenko/Developer/dotnet-skills/.github/upstream-watch.json).
+For upstream watch configuration, keep one human-maintained file with two obvious lists:
 
-For upstream watch configuration, use one universal fragment shape:
+- `github_releases`
+- `documentation`
+
+Normal entry shape:
 
 ```json
 {
@@ -48,9 +50,8 @@ For upstream watch configuration, use one universal fragment shape:
 ```
 
 That is enough for automation.
-The generator derives the watch id, watch kind, source coordinates, display name, and default notes.
-Use the same `source` field for documentation pages too; only the URL changes.
-Only add extra fields such as `match_tag_regex` when the repository publishes multiple release streams.
+`scripts/upstream_watch.py` derives the watch kind, source coordinates, display name, and default notes at runtime.
+Only add extra fields such as `match_tag_regex` or `id` when you actually need them.
 
 ## Required Skill Metadata
 
@@ -234,13 +235,13 @@ Official references:
 
 If you add a project to the watch list:
 
-1. Add an entry to the right fragment under [`.github/upstream-watch.d/`](/Users/ksemenenko/Developer/dotnet-skills/.github/upstream-watch.d)
+1. Add an entry to the right list in [`.github/upstream-watch.json`](/Users/ksemenenko/Developer/dotnet-skills/.github/upstream-watch.json)
 2. Map it to the affected `dotnet-*` skills
 3. Add `match_tag_regex` if the repository publishes multiple release streams
-4. Regenerate the root watch file:
+4. Validate the config:
 
 ```bash
-python3 scripts/generate_upstream_watch.py
+python3 scripts/upstream_watch.py --validate-config
 ```
 
 5. Refresh the baseline:
@@ -257,31 +258,22 @@ python3 scripts/upstream_watch.py --dry-run
 
 ### Which File Do I Edit?
 
-Do not edit [`.github/upstream-watch.json`](/Users/ksemenenko/Developer/dotnet-skills/.github/upstream-watch.json) directly.
-That file is generated from the fragments in [`.github/upstream-watch.d/`](/Users/ksemenenko/Developer/dotnet-skills/.github/upstream-watch.d).
+Edit [`.github/upstream-watch.json`](/Users/ksemenenko/Developer/dotnet-skills/.github/upstream-watch.json) directly.
 
-Why the folder ends with `.d`:
+Keep it simple:
 
-- `.d` is a common config convention meaning "directory of drop-in fragments"
-- each file in that directory contributes part of the generated watch config
-- the goal is to keep watches split by vendor or domain instead of storing everything in one huge JSON file
-
-Use this rule:
-
-- `10-microsoft-releases.json` for Microsoft or official .NET GitHub release feeds
-- `20-managedcode-releases.json` for ManagedCode repositories
-- `30-docs.json` for official documentation pages
-- `40-<vendor>.json` for any other vendor or project family
-
-If a vendor does not fit an existing file, create a new fragment such as `40-myvendor.json` instead of bloating another file.
+- add GitHub repositories to `github_releases`
+- add docs pages to `documentation`
+- map each entry to the relevant `dotnet-*` skills
+- keep optional fields for exceptions only
 
 ### What Happens After I Add A Watch?
 
 ```mermaid
 flowchart LR
-  A["Add a watch entry in .github/upstream-watch.d/*.json"] --> B["Run scripts/generate_upstream_watch.py"]
+  A["Edit .github/upstream-watch.json"] --> B["Run scripts/upstream_watch.py --validate-config"]
   B --> C["Run scripts/upstream_watch.py --sync-state-only once"]
-  C --> D["Commit the fragment, generated config, and state baseline"]
+  C --> D["Commit the config and state baseline"]
   D --> E["Scheduled upstream-watch.yml checks sources every day"]
   E --> F["If a release or doc page changes, automation opens or updates an issue"]
   F --> G["Update the linked dotnet-* skills and docs"]
@@ -301,7 +293,7 @@ Point it at a GitHub repository when you want automation to watch releases:
 }
 ```
 
-The generator fills in the rest.
+The watcher fills in the rest at runtime.
 Add `match_tag_regex` only when the repo publishes multiple streams and you need the .NET-facing tags only:
 
 ```json
@@ -329,12 +321,12 @@ Point `source` at a documentation page when you want automation to watch docs:
 
 ### Required Fields
 
-For human-authored fragments, every watch entry must define:
+For normal config entries, every watch entry must define:
 
 - `source`
 - `skills`
 
-The generator derives `kind`, `id`, `name`, source coordinates, and default `notes`.
+The watcher derives `kind`, `id`, `name`, source coordinates, and default `notes`.
 You can still override those fields explicitly, but do it only when the default output would be unclear.
 
 For project-specific libraries, the `skills` list must point to the dedicated project skill.
@@ -342,19 +334,17 @@ Do not use umbrella skills such as `dotnet`, `dotnet-architecture`, or `dotnet-o
 
 ### Commands To Run After Editing Watches
 
-After editing [`.github/upstream-watch.d/`](/Users/ksemenenko/Developer/dotnet-skills/.github/upstream-watch.d):
+After editing [`.github/upstream-watch.json`](/Users/ksemenenko/Developer/dotnet-skills/.github/upstream-watch.json):
 
 ```bash
-python3 scripts/generate_upstream_watch.py
-python3 scripts/generate_upstream_watch.py --check
+python3 scripts/upstream_watch.py --validate-config
 python3 scripts/upstream_watch.py --sync-state-only
 python3 scripts/upstream_watch.py --dry-run
 ```
 
 What each command is for:
 
-- `generate_upstream_watch.py`: rebuilds [`.github/upstream-watch.json`](/Users/ksemenenko/Developer/dotnet-skills/.github/upstream-watch.json) from fragments
-- `--check`: verifies the generated file is in sync
+- `--validate-config`: validates the config shape and derived watches without contacting upstream sources
 - `--sync-state-only`: records the current upstream values as the new baseline without opening issues
 - `--dry-run`: shows what the watcher would do before CI runs it for real
 
@@ -363,10 +353,9 @@ What each command is for:
 Run the relevant checks:
 
 ```bash
-python3 -m py_compile scripts/generate_catalog.py scripts/generate_upstream_watch.py scripts/upstream_watch.py
+python3 -m py_compile scripts/generate_catalog.py scripts/upstream_watch.py
 python3 scripts/generate_catalog.py --validate-only
-python3 scripts/generate_upstream_watch.py
-python3 scripts/generate_upstream_watch.py --check
+python3 scripts/upstream_watch.py --validate-config
 python3 scripts/upstream_watch.py --dry-run
 ```
 

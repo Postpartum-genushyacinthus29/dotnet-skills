@@ -46,24 +46,23 @@ Catalog releases are published automatically from `main` when `skills/` or catal
 
 This repository does not guess what to monitor.
 
-It watches only the sources explicitly listed in [`.github/upstream-watch.d/`](/Users/ksemenenko/Developer/dotnet-skills/.github/upstream-watch.d). Those fragments are the human-maintained source of truth for:
+It watches only the sources explicitly listed in [`.github/upstream-watch.json`](/Users/ksemenenko/Developer/dotnet-skills/.github/upstream-watch.json). That file is the human-maintained source of truth for:
 
 - GitHub release streams that should trigger skill review
 - documentation pages that should trigger skill review
 - which `dotnet-*` skills are affected by each upstream change
 
-Why the name `upstream-watch.d`:
+The file has exactly two lists:
 
-- the `.d` suffix means "directory of drop-in config fragments"
-- each JSON file in that folder is one small part of the full watch configuration
-- this keeps watch config readable and avoids one giant JSON file
+- `github_releases`
+- `documentation`
 
 High-level flow:
 
 ```mermaid
 flowchart LR
-  A["Edit .github/upstream-watch.d/*.json"] --> B["Run scripts/generate_upstream_watch.py"]
-  B --> C["Generated .github/upstream-watch.json stays in sync"]
+  A["Edit .github/upstream-watch.json"] --> B["Run scripts/upstream_watch.py --validate-config"]
+  B --> C["Run dry-run and sync-state-only once"]
   C --> D["Scheduled upstream-watch.yml runs upstream_watch.py daily"]
   D --> E["GitHub release or documentation change is detected"]
   E --> F["Automation opens or updates an upstream issue"]
@@ -72,28 +71,32 @@ flowchart LR
   H --> I["publish-catalog.yml releases a new catalog-v..."]
 ```
 
-Use these fragment conventions:
-
-- [`.github/upstream-watch.d/10-microsoft-releases.json`](/Users/ksemenenko/Developer/dotnet-skills/.github/upstream-watch.d/10-microsoft-releases.json) for first-party Microsoft or .NET GitHub release feeds
-- [`.github/upstream-watch.d/20-managedcode-releases.json`](/Users/ksemenenko/Developer/dotnet-skills/.github/upstream-watch.d/20-managedcode-releases.json) for ManagedCode libraries
-- [`.github/upstream-watch.d/30-docs.json`](/Users/ksemenenko/Developer/dotnet-skills/.github/upstream-watch.d/30-docs.json) for documentation pages
-- `40-<vendor>.json` for any other vendor or project family
-
-Use one universal fragment shape:
+Use this shape:
 
 ```json
 {
-  "source": "https://github.com/managedcode/Storage",
-  "skills": [
-    "dotnet-managedcode-storage"
+  "github_releases": [
+    {
+      "source": "https://github.com/managedcode/Storage",
+      "skills": [
+        "dotnet-managedcode-storage"
+      ]
+    }
+  ],
+  "documentation": [
+    {
+      "source": "https://learn.microsoft.com/dotnet/aspire/",
+      "skills": [
+        "dotnet-aspire"
+      ]
+    }
   ]
 }
 ```
 
-That is enough.
-The generator derives the watch id, watch kind, source coordinates, display name, and default notes.
-Use the same `source` field for docs pages too; only the URL changes.
-Add extra fields only when you actually need them, for example `match_tag_regex` for mixed release streams.
+That is enough for normal maintenance.
+`scripts/upstream_watch.py` derives the watch kind, ids, source coordinates, display names, and default notes at runtime.
+Use optional fields only when you really need them, for example `match_tag_regex` for mixed release streams or `id` for a stable legacy key.
 
 If you add a new library or framework and want this repo to keep watching it, the actual how-to is in [CONTRIBUTING.md](/Users/ksemenenko/Developer/dotnet-skills/CONTRIBUTING.md#upstream-watch-entries).
 

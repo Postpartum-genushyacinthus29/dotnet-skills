@@ -107,8 +107,7 @@ Other important repository files:
 - [`.github/workflows/catalog-check.yml`](/Users/ksemenenko/Developer/dotnet-skills/.github/workflows/catalog-check.yml): CI validation for generated catalog outputs.
 - [`.github/workflows/publish-catalog.yml`](/Users/ksemenenko/Developer/dotnet-skills/.github/workflows/publish-catalog.yml): release workflow for remote `catalog-v*` assets consumed by the tool.
 - [`.github/workflows/publish-tool.yml`](/Users/ksemenenko/Developer/dotnet-skills/.github/workflows/publish-tool.yml): release workflow for the installable `dotnet-skills` package.
-- [`.github/upstream-watch.d/`](/Users/ksemenenko/Developer/dotnet-skills/.github/upstream-watch.d): human-maintained upstream watch fragments grouped by vendor or domain.
-- [`.github/upstream-watch.json`](/Users/ksemenenko/Developer/dotnet-skills/.github/upstream-watch.json): watch configuration for upstream releases and documentation.
+- [`.github/upstream-watch.json`](/Users/ksemenenko/Developer/dotnet-skills/.github/upstream-watch.json): human-maintained upstream watch configuration with two lists: `github_releases` and `documentation`.
 - [`.github/upstream-watch-state.json`](/Users/ksemenenko/Developer/dotnet-skills/.github/upstream-watch-state.json): machine-maintained baseline state.
 - [`.github/workflows/upstream-watch.yml`](/Users/ksemenenko/Developer/dotnet-skills/.github/workflows/upstream-watch.yml): scheduled workflow.
 - [`tools/ManagedCode.DotnetSkills/ManagedCode.DotnetSkills.csproj`](/Users/ksemenenko/Developer/dotnet-skills/tools/ManagedCode.DotnetSkills/ManagedCode.DotnetSkills.csproj): publishable `.NET` tool that installs the catalog through `dotnet skills ...`.
@@ -149,7 +148,7 @@ When creating a new skill:
 2. Add `SKILL.md`.
 3. Add `references/` only if extra material is genuinely useful and not better kept in `SKILL.md`.
 4. Update any related [`README.md`](/Users/ksemenenko/Developer/dotnet-skills/README.md) notes and regenerate the catalog outputs.
-5. If the skill tracks a major framework or Microsoft surface, update the right fragment under [`.github/upstream-watch.d/`](/Users/ksemenenko/Developer/dotnet-skills/.github/upstream-watch.d) and regenerate [`.github/upstream-watch.json`](/Users/ksemenenko/Developer/dotnet-skills/.github/upstream-watch.json).
+5. If the skill tracks a major framework or Microsoft surface, update the relevant list in [`.github/upstream-watch.json`](/Users/ksemenenko/Developer/dotnet-skills/.github/upstream-watch.json).
 
 ## `SKILL.md` Requirements
 
@@ -271,12 +270,16 @@ For GitHub automation:
 
 The upstream automation exists so the skill catalog stays current without requiring manual ecosystem monitoring.
 
-Human-maintained configuration lives in [`.github/upstream-watch.d/`](/Users/ksemenenko/Developer/dotnet-skills/.github/upstream-watch.d).
-The generated workflow input lives in [`.github/upstream-watch.json`](/Users/ksemenenko/Developer/dotnet-skills/.github/upstream-watch.json).
+Human-maintained configuration lives directly in [`.github/upstream-watch.json`](/Users/ksemenenko/Developer/dotnet-skills/.github/upstream-watch.json).
 
-Keep human-authored fragments short.
+Keep the file obvious.
 
-Use one preferred universal field in human-authored fragments:
+It should contain exactly two human-maintained lists:
+
+- `github_releases`
+- `documentation`
+
+Each entry should stay minimal:
 
 - `source`
 - `skills`: affected `dotnet-*` skills
@@ -286,14 +289,16 @@ Use `source` for both:
 - a GitHub repository URL or `owner/repo` when you want a `github_release` watch
 - a documentation URL when you want an `http_document` watch
 
-The generator derives `kind`, `id`, `name`, source coordinates, and default `notes`.
-Use extra fields only when you actually need them, for example `match_tag_regex`.
+Optional fields are allowed only when needed:
 
-Fragment rules:
+- `id`
+- `name`
+- `notes`
+- `match_tag_regex`
+- `exclude_tag_regex`
+- `include_prereleases`
 
-- Group watches by vendor, framework family, or domain instead of appending everything into one giant file.
-- Add custom libraries to a dedicated fragment such as `managedcode.json` or another vendor-specific file.
-- Do not hand-edit [`.github/upstream-watch.json`](/Users/ksemenenko/Developer/dotnet-skills/.github/upstream-watch.json); regenerate it from fragments.
+`scripts/upstream_watch.py` derives `kind`, source coordinates, and default metadata at runtime.
 
 Supported kinds:
 
@@ -319,16 +324,10 @@ When adding a documentation watch:
 Rules:
 
 - Do not hand-edit it unless there is a repository emergency.
-- After editing fragments, regenerate the file with:
+- To validate watch config structure without contacting upstream sources, run:
 
 ```bash
-python3 scripts/generate_upstream_watch.py
-```
-
-- To verify fragment output instead of writing:
-
-```bash
-python3 scripts/generate_upstream_watch.py --check
+python3 scripts/upstream_watch.py --validate-config
 ```
 
 - After changing watch definitions, refresh baseline with:
@@ -369,10 +368,8 @@ For catalog release changes:
 
 For automation changes:
 
-- `python3 -m py_compile scripts/generate_upstream_watch.py`
-- `python3 scripts/generate_upstream_watch.py`
-- `python3 scripts/generate_upstream_watch.py --check`
 - `python3 -m py_compile scripts/upstream_watch.py`
+- `python3 scripts/upstream_watch.py --validate-config`
 - `python3 scripts/upstream_watch.py --dry-run`
 - `python3 scripts/upstream_watch.py --sync-state-only` when the watch config changes
 - Verify [`.github/workflows/upstream-watch.yml`](/Users/ksemenenko/Developer/dotnet-skills/.github/workflows/upstream-watch.yml) still points to the right script and token env
@@ -401,14 +398,15 @@ This repository should behave like a maintainable documentation-and-automation s
 - Canonical `dotnet-*` skill IDs in the repository, with short aliases in CLI commands.
 - Agent-aware install flows that understand Codex, Claude, Copilot, and Gemini instead of assuming one shared folder layout.
 - Official agent standards and native agent layouts instead of repo-local pseudo-standards.
-- Fragmented upstream-watch config under [`.github/upstream-watch.d/`](/Users/ksemenenko/Developer/dotnet-skills/.github/upstream-watch.d) instead of one giant hand-maintained file.
-- Minimal universal human-authored watch fragments: one `source` field plus related skills, with generated ids, names, and kind.
+- One human-maintained upstream watch file with two obvious lists: `github_releases` and `documentation`.
+- Minimal watch entries: `source` plus related skills, with optional overrides only when really needed.
 - English-only durable docs and skill content.
 - Catalog manifest generation in CI release workflows instead of relying on contributor-local regeneration.
 
 ### Dislikes
 
 - Monolithic watch configuration files that become unreviewable as custom libraries grow.
+- Numbered upstream-watch fragments such as `10/20/30` and `.d` directory indirection for a config that should stay simple.
 - User-facing command examples that require the `dotnet-` prefix when the CLI can resolve a short alias.
 - Local contributor workflows built around `dotnet tool install --add-source artifacts/nuget`.
 - Treating checked-in `catalog/skills.json` as the source of truth instead of `skills/*/SKILL.md`.

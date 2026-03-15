@@ -20,14 +20,14 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Validate generator scripts
-        run: python3 -m py_compile scripts/generate_catalog.py scripts/generate_upstream_watch.py scripts/upstream_watch.py
+      - name: Validate automation scripts
+        run: python3 -m py_compile scripts/generate_catalog.py scripts/upstream_watch.py
 
       - name: Validate catalog source metadata
         run: python3 scripts/generate_catalog.py --validate-only
 
-      - name: Validate generated upstream watch file
-        run: python3 scripts/generate_upstream_watch.py --check
+      - name: Validate upstream watch config
+        run: python3 scripts/upstream_watch.py --validate-config
 
       - name: Validate upstream watch JSON
         run: |

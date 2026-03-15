@@ -12,6 +12,7 @@ import sys
 import tempfile
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 
 USER_AGENT = "dotnet-skills-upstream-watch"
@@ -27,6 +28,155 @@ def load_json(path: Path, default: Any) -> Any:
 def dump_json(path: Path, data: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(data, indent=2, sort_keys=True) + "\n")
+
+
+def slugify(value: str) -> str:
+    return re.sub(r"-+", "-", re.sub(r"[^a-z0-9]+", "-", value.lower())).strip("-")
+
+
+def parse_github_repo_reference(reference: str) -> tuple[str, str]:
+    cleaned = reference.strip().removesuffix(".git").rstrip("/")
+    if cleaned.startswith("https://") or cleaned.startswith("http://"):
+        parsed = urlparse(cleaned)
+        if parsed.netloc.lower() != "github.com":
+            raise ValueError(f"Unsupported GitHub repository URL: {reference}")
+        parts = [part for part in parsed.path.split("/") if part]
+    else:
+        parts = [part for part in cleaned.split("/") if part]
+
+    if len(parts) < 2:
+        raise ValueError(f"GitHub repository reference must be owner/repo or a GitHub repo URL: {reference}")
+
+    owner, repo = parts[:2]
+    return owner, repo
+
+
+def is_http_url(reference: str) -> bool:
+    return reference.startswith("https://") or reference.startswith("http://")
+
+
+def classify_source(reference: str) -> str:
+    if not is_http_url(reference):
+        return "github_release"
+
+    parsed = urlparse(reference)
+    if parsed.netloc.lower() == "github.com":
+        parts = [part for part in parsed.path.split("/") if part]
+        if len(parts) >= 2:
+            return "github_release"
+
+    return "http_document"
+
+
+def default_http_watch_id(url: str) -> str:
+    parsed = urlparse(url)
+    host = slugify(parsed.netloc)
+    path = slugify(parsed.path.strip("/")) or "root"
+    return f"{host}-{path}-docs"
+
+
+def default_http_watch_name(url: str) -> str:
+    parsed = urlparse(url)
+    path = parsed.path.strip("/") or "/"
+    return f"{parsed.netloc}{path} documentation"
+
+
+def normalize_github_release_watch(watch: dict[str, Any]) -> dict[str, Any]:
+    repo_reference = watch.get("source") or watch.get("repo")
+    if not isinstance(repo_reference, str) or not repo_reference.strip():
+        raise ValueError("github_release watch requires a non-empty source field")
+
+    owner, repo = parse_github_repo_reference(repo_reference)
+    normalized: dict[str, Any] = {
+        "id": watch.get("id") or f"{slugify(owner)}-{slugify(repo)}-release",
+        "kind": "github_release",
+        "name": watch.get("name") or f"{owner}/{repo} release",
+        "owner": owner,
+        "repo": repo,
+        "notes": watch.get("notes") or f"Review the linked skills when {owner}/{repo} ships a new release.",
+        "skills": watch.get("skills"),
+    }
+
+    for key in ("match_tag_regex", "exclude_tag_regex", "include_prereleases"):
+        if key in watch:
+            normalized[key] = watch[key]
+
+    return normalized
+
+
+def normalize_http_document_watch(watch: dict[str, Any]) -> dict[str, Any]:
+    url = watch.get("source") or watch.get("url")
+    if not isinstance(url, str) or not url.strip():
+        raise ValueError("http_document watch requires a non-empty source field")
+
+    return {
+        "id": watch.get("id") or default_http_watch_id(url),
+        "kind": "http_document",
+        "name": watch.get("name") or default_http_watch_name(url),
+        "url": url,
+        "notes": watch.get("notes") or f"Review the linked skills when {url} changes.",
+        "skills": watch.get("skills"),
+    }
+
+
+def validate_labels(labels: list[dict[str, Any]]) -> None:
+    names: set[str] = set()
+    for label in labels:
+        name = label.get("name")
+        if not name:
+            raise ValueError("Label without name in upstream-watch config")
+        if name in names:
+            raise ValueError(f"Duplicate label name {name!r} in upstream-watch config")
+        names.add(name)
+
+
+def validate_skills(watch: dict[str, Any]) -> None:
+    skills = watch.get("skills")
+    if not isinstance(skills, list) or not skills or not all(isinstance(skill, str) and skill for skill in skills):
+        raise ValueError(f"Watch {watch.get('id', '<unknown>')} must define a non-empty skills list")
+
+
+def normalize_human_watch(watch: dict[str, Any], kind: str) -> dict[str, Any]:
+    if not isinstance(watch, dict):
+        raise ValueError(f"{kind} entries must be JSON objects")
+    normalized = normalize_github_release_watch(watch) if kind == "github_release" else normalize_http_document_watch(watch)
+    validate_skills(normalized)
+    return normalized
+
+
+def normalize_config(raw_config: dict[str, Any]) -> dict[str, Any]:
+    labels = raw_config.get("labels", [])
+    if not isinstance(labels, list):
+        raise ValueError("labels must be a list")
+    validate_labels(labels)
+
+    github_releases = raw_config.get("github_releases", [])
+    documentation = raw_config.get("documentation", [])
+    if not isinstance(github_releases, list) or not isinstance(documentation, list):
+        raise ValueError("github_releases and documentation must both be lists")
+
+    watches: list[dict[str, Any]] = []
+    watch_ids: set[str] = set()
+
+    for watch in github_releases:
+        normalized = normalize_human_watch(watch, "github_release")
+        if normalized["id"] in watch_ids:
+            raise ValueError(f"Duplicate watch id {normalized['id']!r} in upstream-watch config")
+        watch_ids.add(normalized["id"])
+        watches.append(normalized)
+
+    for watch in documentation:
+        normalized = normalize_human_watch(watch, "http_document")
+        if normalized["id"] in watch_ids:
+            raise ValueError(f"Duplicate watch id {normalized['id']!r} in upstream-watch config")
+        watch_ids.add(normalized["id"])
+        watches.append(normalized)
+
+    return {
+        "watch_issue_label": raw_config.get("watch_issue_label", "upstream-update"),
+        "labels": labels,
+        "watches": watches,
+    }
 
 
 def run_curl(
@@ -376,6 +526,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Monitor upstream frameworks and docs, then open refresh issues.")
     parser.add_argument("--config", default=".github/upstream-watch.json")
     parser.add_argument("--state", default=".github/upstream-watch-state.json")
+    parser.add_argument("--validate-config", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--sync-state-only", action="store_true")
     return parser.parse_args()
@@ -386,7 +537,21 @@ def main() -> int:
     config_path = Path(args.config)
     state_path = Path(args.state)
 
-    config = load_json(config_path, default={})
+    raw_config = load_json(config_path, default={})
+    config = normalize_config(raw_config)
+    if args.validate_config:
+        summary = [
+            "# Upstream Watch Config",
+            "",
+            f"- Config: `{config_path}`",
+            f"- GitHub release watches: `{sum(1 for watch in config['watches'] if watch['kind'] == 'github_release')}`",
+            f"- Documentation watches: `{sum(1 for watch in config['watches'] if watch['kind'] == 'http_document')}`",
+            f"- Total watches: `{len(config['watches'])}`",
+        ]
+        print("\n".join(summary))
+        write_summary(summary)
+        return 0
+
     state = load_json(state_path, default={"watches": {}})
     prior_watches = state.get("watches", {})
 
