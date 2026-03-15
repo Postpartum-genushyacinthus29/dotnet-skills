@@ -55,7 +55,7 @@ skills/<skill-name>/
 
 <!-- BEGIN GENERATED CATALOG -->
 
-This catalog currently contains **55** skills.
+This catalog currently contains **56** skills.
 
 ### Core
 
@@ -140,6 +140,7 @@ This catalog currently contains **55** skills.
 | --- | --- | --- | --- |
 | `dotnet-coverlet` | `1.0.0` | Use the open-source free `coverlet` toolchain for .NET code coverage. Use when a repo needs line and branch coverage, collector versus MSBuild driver selection, or CI-safe coverage commands. | [`skills/dotnet-coverlet/`](skills/dotnet-coverlet/) |
 | `dotnet-mstest` | `1.0.0` | Write, run, or repair .NET tests that use MSTest. Use when a repo uses `MSTest.Sdk`, `MSTest`, `[TestClass]`, `[TestMethod]`, `DataRow`, or Microsoft.Testing.Platform-based MSTest execution. | [`skills/dotnet-mstest/`](skills/dotnet-mstest/) |
+| `dotnet-nunit` | `1.0.0` | Write, run, or repair .NET tests that use NUnit. Use when a repo uses `NUnit`, `[Test]`, `[TestCase]`, `[TestFixture]`, or NUnit3TestAdapter for VSTest or Microsoft.Testing.Platform execution. | [`skills/dotnet-nunit/`](skills/dotnet-nunit/) |
 | `dotnet-reportgenerator` | `1.0.0` | Use the open-source free `ReportGenerator` tool for turning .NET coverage outputs into HTML, Markdown, Cobertura, badges, and merged reports. Use when raw coverage files are not readable enough for CI or human review. | [`skills/dotnet-reportgenerator/`](skills/dotnet-reportgenerator/) |
 | `dotnet-stryker` | `1.0.0` | Use the open-source free `Stryker.NET` mutation testing tool for .NET. Use when a repo needs to measure whether tests actually catch faults, especially in critical libraries or domains. | [`skills/dotnet-stryker/`](skills/dotnet-stryker/) |
 | `dotnet-tunit` | `1.0.0` | Write, run, or repair .NET tests that use TUnit. Use when a repo uses `TUnit`, `[Test]`, `[Arguments]`, source-generated test projects, or Microsoft.Testing.Platform-based execution. | [`skills/dotnet-tunit/`](skills/dotnet-tunit/) |
