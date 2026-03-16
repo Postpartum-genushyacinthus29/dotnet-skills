@@ -438,7 +438,8 @@ This repository should behave like a maintainable documentation-and-automation s
 - Public site copy should frame Claude Code, GitHub Copilot, Gemini, and Codex as supported platforms with recognizable brand-style presentation, not as "AI agents".
 - Public landing page spacing should feel deliberate and compact; excessive whitespace between cards, sections, and step content is a regression.
 - Skill catalog cards on the public site must keep category badges and install commands on stable separate rows; badges must never collide with or visually break the command line.
-- Public README skill counts must be generated from the catalog source of truth; do not leave hand-maintained exact numbers in badges or intro copy where merges can make them stale.
+- Public README hero copy must avoid exact skill counts in the top badge and intro line; keep precise counts only in the generated catalog section where they can stay authoritative.
+- The README header generator must normalize duplicate generated lines after merges; one canonical top Skills badge and one canonical intro line only.
 
 ### Dislikes
 
@@ -452,7 +453,8 @@ This repository should behave like a maintainable documentation-and-automation s
 - Misleading public site wording that calls the supported platforms "AI agents" instead of showing them as platforms that use the skill catalog.
 - Bloated spacing on the public landing page, especially in Quick Start shells, step stacks, and sidebar cards.
 - Broken skill-card footers where category badges and install commands overlap, wrap awkwardly, or compete for the same horizontal space.
-- Stale exact skill counts in the public README after new skills merge, especially when the catalog source already knows the real count.
+- Exact skill counts in the public README hero badge or intro copy, where they go stale and create pointless merge churn.
+- README generators that update only the first header occurrence and leave duplicate Skills badges or duplicate intro lines behind after merges.
 
 ## Anti-Patterns
 

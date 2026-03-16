@@ -15,11 +15,17 @@ MANIFEST_PATH = ROOT / "catalog" / "skills.json"
 
 BEGIN_MARKER = "<!-- BEGIN GENERATED CATALOG -->"
 END_MARKER = "<!-- END GENERATED CATALOG -->"
-README_SKILLS_BADGE_PATTERN = re.compile(
-    r"(\[!\[Skills\]\(https://img\.shields\.io/badge/skills-)([^-)]+)(-blue\)\]\(#catalog\))"
+README_SKILLS_BADGE_LINE_PATTERN = re.compile(
+    r"(?m)^\[!\[Skills\]\(https://img\.shields\.io/badge/skills-[^\n]+-blue\)\]\(#catalog\)\n?"
 )
-README_SKILLS_INTRO_PATTERN = re.compile(
-    r"(This catalog fixes that\. \*\*)([^*]+)(\*\* covering the entire \.NET ecosystem)"
+README_SKILLS_BADGE_LINE_TEMPLATE = "[![Skills](https://img.shields.io/badge/skills-growing-blue)](#catalog)\n"
+README_SKILLS_INTRO_LINE_PATTERN = re.compile(
+    r"(?m)^This catalog fixes that\..*\n?"
+)
+README_SKILLS_INTRO_LINE_TEMPLATE = (
+    "This catalog fixes that. A growing catalog covering the entire .NET ecosystem"
+    "—from ASP.NET Core to Orleans, from MAUI to Semantic Kernel. Install them once, and your AI agent"
+    " actually knows modern .NET.\n"
 )
 
 CATEGORY_ORDER = [
@@ -147,24 +153,37 @@ def render_catalog(skills: list[dict[str, str]]) -> str:
     return "\n".join(lines)
 
 
+def normalize_repeated_generated_line(
+    readme: str,
+    pattern: re.Pattern[str],
+    replacement_line: str,
+    label: str,
+) -> str:
+    matches = list(pattern.finditer(readme))
+    if not matches:
+        raise ValueError(f"README.md is missing the generated {label} pattern")
+
+    first_start = matches[0].start()
+    without_duplicates = pattern.sub("", readme)
+    return without_duplicates[:first_start] + replacement_line + without_duplicates[first_start:]
+
+
 def apply_readme_count_metadata(readme: str, skill_count: int) -> str:
-    badge_updated, badge_replacements = README_SKILLS_BADGE_PATTERN.subn(
-        lambda match: f"{match.group(1)}{skill_count}{match.group(3)}",
+    badge_line = README_SKILLS_BADGE_LINE_TEMPLATE
+    badge_normalized = normalize_repeated_generated_line(
         readme,
-        count=1,
+        README_SKILLS_BADGE_LINE_PATTERN,
+        badge_line,
+        "skills badge",
     )
-    if badge_replacements != 1:
-        raise ValueError("README.md is missing the generated skills badge pattern")
 
-    intro_updated, intro_replacements = README_SKILLS_INTRO_PATTERN.subn(
-        lambda match: f"{match.group(1)}{skill_count} skills{match.group(3)}",
-        badge_updated,
-        count=1,
+    intro_line = README_SKILLS_INTRO_LINE_TEMPLATE
+    return normalize_repeated_generated_line(
+        badge_normalized,
+        README_SKILLS_INTRO_LINE_PATTERN,
+        intro_line,
+        "intro skill count",
     )
-    if intro_replacements != 1:
-        raise ValueError("README.md is missing the generated intro skill count pattern")
-
-    return intro_updated
 
 
 def render_readme(readme: str, rendered_catalog: str, skill_count: int) -> str:
