@@ -24,21 +24,28 @@ This catalog fixes that. **56 skills** covering the entire .NET ecosystem—from
 ```bash
 dotnet tool install --global dotnet-skills
 
-dotnet skills list                          # show all skills
+dotnet skills list                          # show installed and available skills
+dotnet skills list --local                  # only installed skills in the current target
+dotnet skills recommend                     # suggest skills from local .csproj files
 dotnet skills install aspire orleans        # install skills
-dotnet skills install blazor --agent claude # install for specific agent
+dotnet skills remove --all                  # remove installed catalog skills from the target
+dotnet skills update                        # refresh installed catalog skills
+dotnet skills install blazor --agent claude # install for a specific agent
 ```
 
 ## Commands
 
 | Command | Description |
 |---------|-------------|
-| `dotnet skills list` | List all available skills |
+| `dotnet skills list` | Show installed catalog skills, available catalog skills, and quick follow-up commands |
+| `dotnet skills recommend` | Scan local `*.csproj` files and suggest relevant `dotnet-*` skills |
 | `dotnet skills install <skill...>` | Install one or more skills |
+| `dotnet skills remove [skill...]` | Remove one or more installed catalog skills, or use `--all` to clear the target |
+| `dotnet skills update [skill...]` | Update installed catalog skills to the selected catalog version |
 | `dotnet skills sync` | Download latest catalog |
 | `dotnet skills where` | Show install paths |
 
-Use `--agent` to target a specific agent, `--scope` to choose global or project install.
+Use `--agent` to target a specific agent, `--scope` to choose global or project install. Use `dotnet skills list --installed-only` or the shorter `dotnet skills list --local` when you only want the installed inventory, or `--available-only` when you only want the remaining catalog. The CLI renders rich terminal tables by default so you can quickly see installed versions, update candidates, and install commands.
 
 Catalog releases are published automatically from `main` when `skills/` or catalog-generation inputs change. Automatic catalog versions use a numeric calendar-plus-run format such as `2026.3.15.42`. The tool reads the newest non-draft `catalog-v*` release by default, and `--catalog-version` is only for intentional pinning.
 
@@ -835,6 +842,8 @@ This catalog builds on the work of many open-source projects and their authors:
 | Tool/Library | Authors | License |
 |--------------|---------|---------|
 | [CommunityToolkit.Mvvm](https://github.com/CommunityToolkit/dotnet) | Microsoft, .NET Foundation | MIT |
+| [Microsoft Agent Framework](https://github.com/microsoft/agent-framework) | Microsoft | MIT |
+| [Microsoft.Extensions.AI](https://github.com/dotnet/extensions) | Microsoft, .NET Foundation | MIT |
 | [MCP C# SDK](https://github.com/modelcontextprotocol/csharp-sdk) | Anthropic, Microsoft | Apache-2.0 |
 | [Uno Platform](https://github.com/unoplatform/uno) | nventive, Uno Platform | Apache-2.0 |
 | [Orleans](https://github.com/dotnet/orleans) | Microsoft | MIT |

@@ -13,8 +13,21 @@ gemini_workspace="$workspace_path/gemini"
 rm -rf "$tool_path" "$skills_path" "$workspace_path"
 mkdir -p "$tool_path" "$skills_path" "$codex_workspace/.codex" "$claude_workspace/.claude" "$plain_workspace" "$gemini_workspace/.gemini"
 
+shopt -s nullglob
+packages=( "$package_source"/dotnet-skills.*.nupkg )
+if [[ ${#packages[@]} -eq 0 ]]; then
+  echo "No dotnet-skills package found in $package_source" >&2
+  exit 1
+fi
+
+latest_package="$(ls -t "${packages[@]}" | head -n 1)"
+package_version="$(basename "$latest_package")"
+package_version="${package_version#dotnet-skills.}"
+package_version="${package_version%.nupkg}"
+
 dotnet tool install \
   --tool-path "$tool_path" \
+  --version "$package_version" \
   dotnet-skills \
   --add-source "$package_source"
 
@@ -25,6 +38,10 @@ grep -q "dotnet-aspire" "$skills_path/list.txt"
 
 dotnet skills install aspire --target "$skills_path"
 test -f "$skills_path/dotnet-aspire/SKILL.md"
+dotnet skills list --local --target "$skills_path" > "$skills_path/local-list.txt"
+grep -q "dotnet-aspire" "$skills_path/local-list.txt"
+dotnet skills remove --all --target "$skills_path"
+test ! -e "$skills_path/dotnet-aspire"
 
 dotnet skills install aspire --agent anthropic --scope project --project-dir "$workspace_path"
 test -f "$workspace_path/.claude/agents/dotnet-aspire.md"

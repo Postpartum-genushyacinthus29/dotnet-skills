@@ -210,16 +210,17 @@ If you change the tool:
 
 ```bash
 dotnet build dotnet-skills.slnx
+dotnet test dotnet-skills.slnx
 dotnet pack dotnet-skills.slnx -c Release
 ```
 
-Installability smoke tests run in CI.
+Unit and integration tests run in CI alongside installability smoke tests.
 Do not use a local `dotnet tool install --add-source artifacts/nuget ...` loop as the normal contributor workflow.
 
 If you change the catalog release flow, also check:
 
 ```bash
-dotnet skills list --bundled
+dotnet skills list --bundled --local
 dotnet skills sync --catalog-version <version>
 ```
 

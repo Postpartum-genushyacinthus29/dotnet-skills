@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 namespace ManagedCode.DotnetSkills.Runtime;
 
 internal sealed class SkillInstaller(SkillCatalogPackage catalog)
@@ -79,6 +81,49 @@ internal sealed class SkillInstaller(SkillCatalogPackage catalog)
         return new SkillInstallSummary(installedCount, generatedAdapters, skippedExisting);
     }
 
+    public SkillRemoveSummary Remove(IReadOnlyList<SkillEntry> skills, SkillInstallLayout layout)
+    {
+        var removedCount = 0;
+        var missingSkills = new List<string>();
+
+        foreach (var skill in skills)
+        {
+            switch (layout.Mode)
+            {
+                case SkillInstallMode.RawSkillPayloads:
+                    {
+                        var destinationDirectory = new DirectoryInfo(Path.Combine(layout.PrimaryRoot.FullName, skill.Name));
+                        if (!destinationDirectory.Exists)
+                        {
+                            missingSkills.Add(skill.Name);
+                            continue;
+                        }
+
+                        destinationDirectory.Delete(recursive: true);
+                        removedCount++;
+                        break;
+                    }
+                case SkillInstallMode.ClaudeSubagents:
+                    {
+                        var destinationFile = new FileInfo(Path.Combine(layout.PrimaryRoot.FullName, $"{skill.Name}.md"));
+                        if (!destinationFile.Exists)
+                        {
+                            missingSkills.Add(skill.Name);
+                            continue;
+                        }
+
+                        destinationFile.Delete();
+                        removedCount++;
+                        break;
+                    }
+                default:
+                    throw new InvalidOperationException($"Unsupported install mode: {layout.Mode}");
+            }
+        }
+
+        return new SkillRemoveSummary(removedCount, missingSkills);
+    }
+
     public bool IsInstalled(SkillEntry skill, SkillInstallLayout layout)
     {
         return layout.Mode switch
@@ -87,6 +132,15 @@ internal sealed class SkillInstaller(SkillCatalogPackage catalog)
             SkillInstallMode.ClaudeSubagents => File.Exists(Path.Combine(layout.PrimaryRoot.FullName, $"{skill.Name}.md")),
             _ => false,
         };
+    }
+
+    public IReadOnlyList<InstalledSkillRecord> GetInstalledSkills(SkillInstallLayout layout)
+    {
+        return catalog.Skills
+            .Where(skill => IsInstalled(skill, layout))
+            .Select(skill => new InstalledSkillRecord(skill, ReadInstalledVersion(skill, layout)))
+            .OrderBy(record => record.Skill.Name, StringComparer.Ordinal)
+            .ToArray();
     }
 
     public static void CopyDirectory(DirectoryInfo source, DirectoryInfo destination)
@@ -135,6 +189,7 @@ internal sealed class SkillInstaller(SkillCatalogPackage catalog)
             $"""
             ---
             name: {skill.Name}
+            version: {skill.Version}
             description: "{EscapeYaml(skill.Description)}"
             ---
 
@@ -172,6 +227,67 @@ internal sealed class SkillInstaller(SkillCatalogPackage catalog)
     }
 
     private static string EscapeYaml(string value) => value.Replace("\\", "\\\\").Replace("\"", "\\\"");
+
+    private static string ReadInstalledVersion(SkillEntry skill, SkillInstallLayout layout)
+    {
+        return layout.Mode switch
+        {
+            SkillInstallMode.RawSkillPayloads => ReadFrontMatterValue(Path.Combine(layout.PrimaryRoot.FullName, skill.Name, "SKILL.md"), "version") ?? "unknown",
+            SkillInstallMode.ClaudeSubagents => ReadFrontMatterValue(Path.Combine(layout.PrimaryRoot.FullName, $"{skill.Name}.md"), "version")
+                ?? ReadClaudeAdapterVersion(Path.Combine(layout.PrimaryRoot.FullName, $"{skill.Name}.md"))
+                ?? "unknown",
+            _ => "unknown",
+        };
+    }
+
+    private static string? ReadFrontMatterValue(string filePath, string key)
+    {
+        if (!File.Exists(filePath))
+        {
+            return null;
+        }
+
+        var lines = File.ReadLines(filePath).ToArray();
+        if (lines.Length == 0 || lines[0] != "---")
+        {
+            return null;
+        }
+
+        for (var index = 1; index < lines.Length; index++)
+        {
+            var line = lines[index];
+            if (line == "---")
+            {
+                break;
+            }
+
+            if (!line.StartsWith($"{key}:", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            return line[(line.IndexOf(':', StringComparison.Ordinal) + 1)..].Trim().Trim('"');
+        }
+
+        return null;
+    }
+
+    private static string? ReadClaudeAdapterVersion(string filePath)
+    {
+        if (!File.Exists(filePath))
+        {
+            return null;
+        }
+
+        var text = File.ReadAllText(filePath);
+        var match = Regex.Match(text, @"Source skill: `[^`]+` version `([^`]+)`\.");
+        return match.Success ? match.Groups[1].Value : null;
+    }
 }
 
 internal sealed record SkillInstallSummary(int InstalledCount, int GeneratedAdapters, IReadOnlyList<string> SkippedExisting);
+internal sealed record SkillRemoveSummary(int RemovedCount, IReadOnlyList<string> MissingSkills);
+internal sealed record InstalledSkillRecord(SkillEntry Skill, string InstalledVersion)
+{
+    public bool IsCurrent => string.Equals(InstalledVersion, Skill.Version, StringComparison.OrdinalIgnoreCase);
+}

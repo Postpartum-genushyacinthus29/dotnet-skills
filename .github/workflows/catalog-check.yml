@@ -54,6 +54,9 @@ jobs:
       - name: Build dotnet tool
         run: dotnet build dotnet-skills.slnx -c Release
 
+      - name: Run dotnet tests
+        run: dotnet test dotnet-skills.slnx -c Release --no-build
+
       - name: Pack dotnet tool
         run: dotnet pack dotnet-skills.slnx -c Release --no-build
 

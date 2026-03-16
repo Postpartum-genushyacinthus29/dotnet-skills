@@ -69,6 +69,9 @@ jobs:
       - name: Build dotnet tool
         run: dotnet build "${{ env.SOLUTION_FILE }}" -c Release -p:ContinuousIntegrationBuild=true -p:Version="${{ steps.version.outputs.package_version }}"
 
+      - name: Run dotnet tests
+        run: dotnet test "${{ env.SOLUTION_FILE }}" -c Release --no-build -p:ContinuousIntegrationBuild=true -p:Version="${{ steps.version.outputs.package_version }}"
+
       - name: Pack dotnet tool
         run: dotnet pack "${{ env.SOLUTION_FILE }}" -c Release --no-build -p:ContinuousIntegrationBuild=true -p:Version="${{ steps.version.outputs.package_version }}"
 

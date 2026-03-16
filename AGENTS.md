@@ -81,6 +81,7 @@ If work touches `.NET` code in this repository:
 - `mcaf-dotnet` is the entry skill and routes to more specialized `.NET` guidance.
 - Keep the executable surface limited to the catalog installer tool; repo automation does not need to be moved into `.NET`.
 - Recheck `build`, `pack`, smoke-test, and publish workflows when tool behavior changes.
+- Do not rely on smoke tests alone for tool changes; keep a real automated `.NET` test project with focused unit or integration coverage for installer behavior, path resolution, command semantics, and recommendation logic when those areas change.
 
 ## Canonical Layout
 
@@ -115,6 +116,9 @@ Other important repository files:
 - [`scripts/generate_catalog.py`](/Users/ksemenenko/Developer/dotnet-skills/scripts/generate_catalog.py): catalog generator and checker.
 - [`scripts/smoke_test_tool.sh`](/Users/ksemenenko/Developer/dotnet-skills/scripts/smoke_test_tool.sh): CI smoke test for the installable tool package.
 - [`scripts/upstream_watch.py`](/Users/ksemenenko/Developer/dotnet-skills/scripts/upstream_watch.py): watch runner.
+- [`github-pages/index.html`](/Users/ksemenenko/Developer/dotnet-skills/github-pages/index.html): template for the public skills directory website.
+- [`scripts/generate_pages.py`](/Users/ksemenenko/Developer/dotnet-skills/scripts/generate_pages.py): generates the GitHub Pages site with embedded skills data.
+- [`.github/workflows/publish-pages.yml`](/Users/ksemenenko/Developer/dotnet-skills/.github/workflows/publish-pages.yml): deploys the skills directory website to GitHub Pages.
 
 ## Skill Naming Rules
 
@@ -252,6 +256,21 @@ Rules:
 - The tool should use the newest non-draft `catalog-v*` GitHub release by default and fall back to bundled content only when the remote catalog is unavailable.
 - Local `dotnet build` and `dotnet pack` for the tool may generate a temporary manifest in `obj/` from `skills/*/SKILL.md`; release CI remains the canonical place that generates checked catalog outputs and release assets.
 
+## GitHub Pages Rules
+
+The repository publishes a public skills directory website to GitHub Pages.
+
+Rules:
+
+- The website source lives in `github-pages/index.html` as a template with a `SKILLS_DATA_PLACEHOLDER` marker.
+- `scripts/generate_pages.py` reads `catalog/skills.json` and injects the skills data into the template.
+- The generated site is output to `artifacts/github-pages/` which is gitignored.
+- `publish-pages.yml` runs on `main` when `skills/`, `github-pages/`, or page-generation scripts change.
+- The website displays the full skill catalog with search, category filters, and installation commands.
+- Keep the website focused on skill discovery and installation; do not expand it into unrelated documentation.
+- The website must show the `dotnet skills install <skill>` command pattern for each skill.
+- Dark terminal-like aesthetic with monospace fonts is the intended design language.
+
 ## Source-of-Truth Policy
 
 For .NET framework and platform guidance:
@@ -358,6 +377,7 @@ For skill and docs changes:
 For dotnet tool changes:
 
 - `dotnet build dotnet-skills.slnx`
+- `dotnet test dotnet-skills.slnx`
 - `dotnet pack dotnet-skills.slnx -c Release`
 - validate installability through CI workflow smoke tests, not a documented local `dotnet tool install --add-source ...` loop
 
@@ -365,6 +385,13 @@ For catalog release changes:
 
 - Verify [`.github/workflows/publish-catalog.yml`](/Users/ksemenenko/Developer/dotnet-skills/.github/workflows/publish-catalog.yml) still publishes `catalog-v*` releases.
 - Verify the release assets remain `dotnet-skills-manifest.json` and `dotnet-skills-catalog.zip`.
+
+For GitHub Pages changes:
+
+- `python3 -m py_compile scripts/generate_pages.py`
+- `python3 scripts/generate_pages.py`
+- Verify `artifacts/github-pages/index.html` was generated with embedded skills data
+- Verify [`.github/workflows/publish-pages.yml`](/Users/ksemenenko/Developer/dotnet-skills/.github/workflows/publish-pages.yml) still deploys to GitHub Pages
 
 For automation changes:
 

@@ -46,9 +46,16 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Spectre.Console" Version="0.54.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="ManagedCode.DotnetSkills.Tests" />
+  </ItemGroup>
+
   <Target Name="GenerateBundledCatalogManifest" BeforeTargets="PrepareForBuild">
     <MakeDir Directories="$(DotnetSkillsGeneratedDir)/catalog" />
-    <Exec Command='python3 ../../scripts/generate_catalog.py --manifest-output "$(DotnetSkillsGeneratedManifestPath)"'
-          WorkingDirectory="$(MSBuildProjectDirectory)" />
+    <Exec Command="python3 ../../scripts/generate_catalog.py --manifest-output &quot;$(DotnetSkillsGeneratedManifestPath)&quot;" WorkingDirectory="$(MSBuildProjectDirectory)" />
   </Target>
 </Project>

@@ -1,0 +1,430 @@
+using ManagedCode.DotnetSkills.Runtime;
+using Spectre.Console;
+
+namespace ManagedCode.DotnetSkills;
+
+internal static class ConsoleUi
+{
+    public static void RenderList(
+        SkillCatalogPackage catalog,
+        SkillInstallLayout layout,
+        IReadOnlyList<InstalledSkillRecord> installedSkills,
+        bool showInstalledSection,
+        bool showAvailableSection)
+    {
+        WriteTitle("dotnet skills list");
+        AnsiConsole.Write(BuildSessionPanel(catalog, layout, installedSkills.Count));
+        AnsiConsole.WriteLine();
+
+        if (showInstalledSection)
+        {
+            if (installedSkills.Count == 0)
+            {
+                AnsiConsole.Write(new Panel(new Markup("No catalog skills are installed in this target yet."))
+                    .Header("Installed skills")
+                    .Expand());
+            }
+            else
+            {
+                AnsiConsole.Write(BuildInstalledSkillsTable(installedSkills));
+            }
+
+            AnsiConsole.WriteLine();
+        }
+
+        var availableSkills = catalog.Skills
+            .Where(skill => installedSkills.All(installed => !string.Equals(installed.Skill.Name, skill.Name, StringComparison.OrdinalIgnoreCase)))
+            .OrderBy(skill => skill.Name, StringComparer.Ordinal)
+            .ToArray();
+
+        if (showAvailableSection)
+        {
+            AnsiConsole.Write(BuildAvailableSkillsTable(availableSkills));
+            AnsiConsole.WriteLine();
+        }
+
+        AnsiConsole.Write(BuildQuickCommandPanel(installedSkills.Select(record => record.Skill).ToArray(), availableSkills));
+    }
+
+    public static void RenderInstallSummary(
+        SkillCatalogPackage catalog,
+        SkillInstallLayout layout,
+        IReadOnlyList<SkillActionRow> rows,
+        SkillInstallSummary summary)
+    {
+        WriteTitle("dotnet skills install");
+        AnsiConsole.Write(BuildOperationPanel(
+            catalog,
+            layout,
+            summary.InstalledCount,
+            summary.SkippedExisting.Count,
+            summary.GeneratedAdapters));
+        AnsiConsole.WriteLine();
+
+        if (rows.Count > 0)
+        {
+            AnsiConsole.Write(BuildOperationTable("Install results", rows));
+            AnsiConsole.WriteLine();
+        }
+
+        if (summary.SkippedExisting.Count > 0)
+        {
+            AnsiConsole.Write(new Panel(new Markup(Escape(string.Join(", ", summary.SkippedExisting))))
+                .Header("Skipped existing")
+                .Expand());
+            AnsiConsole.WriteLine();
+        }
+
+        AnsiConsole.Write(new Panel(new Markup(Escape(layout.ReloadHint))).Header("Next step").Expand());
+    }
+
+    public static void RenderRemoveSummary(
+        SkillCatalogPackage catalog,
+        SkillInstallLayout layout,
+        IReadOnlyList<SkillActionRow> rows,
+        int removedCount,
+        string? statusMessage)
+    {
+        WriteTitle("dotnet skills remove");
+        AnsiConsole.Write(BuildOperationPanel(catalog, layout, removedCount, rows.Count(row => row.Action == SkillAction.Missing), generatedAdapters: 0));
+        AnsiConsole.WriteLine();
+
+        if (rows.Count == 0)
+        {
+            AnsiConsole.Write(new Panel(new Markup(Escape(statusMessage ?? "No matching catalog skills were removed.")))
+                .Header("Status")
+                .Expand());
+        }
+        else
+        {
+            AnsiConsole.Write(BuildOperationTable("Remove results", rows));
+        }
+
+        AnsiConsole.WriteLine();
+        AnsiConsole.Write(new Panel(new Markup(Escape(layout.ReloadHint))).Header("Next step").Expand());
+    }
+
+    public static void RenderUpdateSummary(
+        SkillCatalogPackage catalog,
+        SkillInstallLayout layout,
+        IReadOnlyList<SkillActionRow> rows,
+        int updatedCount,
+        string? statusMessage)
+    {
+        WriteTitle("dotnet skills update");
+        AnsiConsole.Write(BuildOperationPanel(catalog, layout, updatedCount, skippedCount: 0, generatedAdapters: 0));
+        AnsiConsole.WriteLine();
+
+        if (rows.Count == 0)
+        {
+            AnsiConsole.Write(new Panel(new Markup(Escape(statusMessage ?? "All installed catalog skills already match the selected catalog version.")))
+                .Header("Status")
+                .Expand());
+        }
+        else
+        {
+            AnsiConsole.Write(BuildOperationTable("Updated skills", rows));
+        }
+
+        AnsiConsole.WriteLine();
+        AnsiConsole.Write(new Panel(new Markup(Escape(layout.ReloadHint))).Header("Next step").Expand());
+    }
+
+    public static void RenderRecommendationSummary(
+        ProjectScanResult scanResult,
+        SkillCatalogPackage catalog,
+        SkillInstallLayout layout,
+        IReadOnlyDictionary<string, InstalledSkillRecord> installedSkills)
+    {
+        WriteTitle("dotnet skills recommend");
+        AnsiConsole.Write(BuildRecommendationPanel(scanResult, catalog, layout));
+        AnsiConsole.WriteLine();
+
+        if (scanResult.Recommendations.Count == 0)
+        {
+            AnsiConsole.Write(new Panel(new Markup("No direct package-based matches were found. Start with [bold]dotnet[/] and [bold]dotnet-modern-csharp[/] if you want a baseline .NET skill set."))
+                .Header("Recommendations")
+                .Expand());
+            return;
+        }
+
+        var table = new Table().Expand();
+        table.Title = new TableTitle("Recommendations");
+        table.AddColumn("Skill");
+        table.AddColumn("Confidence");
+        table.AddColumn("Status");
+        table.AddColumn("Signals");
+
+        foreach (var recommendation in scanResult.Recommendations)
+        {
+            installedSkills.TryGetValue(recommendation.Skill.Name, out var installed);
+            table.AddRow(
+                BuildSkillCell(recommendation.Skill),
+                FormatConfidence(recommendation.Confidence),
+                FormatRecommendationStatus(installed),
+                Escape(string.Join(Environment.NewLine, recommendation.Reasons)));
+        }
+
+        AnsiConsole.Write(table);
+        AnsiConsole.WriteLine();
+
+        var installableSkills = scanResult.Recommendations
+            .Where(recommendation => !installedSkills.TryGetValue(recommendation.Skill.Name, out var installed) || !installed.IsCurrent)
+            .Select(recommendation => ToAlias(recommendation.Skill.Name))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Take(6)
+            .ToArray();
+
+        if (installableSkills.Length > 0)
+        {
+            var command = $"dotnet skills install {string.Join(' ', installableSkills)}";
+            AnsiConsole.Write(new Panel(new Markup($"Install the strongest matches with:{Environment.NewLine}[green]{Escape(command)}[/]"))
+                .Header("Suggested command")
+                .Expand());
+        }
+    }
+
+    public static void RenderSyncSummary(SkillCatalogPackage catalog)
+    {
+        WriteTitle("dotnet skills sync");
+        var grid = new Grid();
+        grid.AddColumn(new GridColumn().NoWrap());
+        grid.AddColumn();
+        grid.AddRow(new Markup("[grey]Catalog[/]"), new Markup(Escape(catalog.CatalogVersion)));
+        grid.AddRow(new Markup("[grey]Source[/]"), new Markup(Escape(catalog.SourceLabel)));
+        grid.AddRow(new Markup("[grey]Cache[/]"), new Markup(Escape(catalog.CatalogRoot.FullName)));
+        AnsiConsole.Write(new Panel(grid).Header("Synced catalog").Expand());
+    }
+
+    public static void RenderUsage()
+    {
+        WriteTitle("dotnet-skills");
+
+        var table = new Table().Expand();
+        table.AddColumn("Command");
+        table.AddColumn("Purpose");
+        table.AddRow("[green]dotnet skills list[/]", "Show installed catalog skills, available catalog skills, and quick follow-up commands.");
+        table.AddRow("[green]dotnet skills recommend[/]", "Scan `*.csproj` files and suggest the most relevant `dotnet-*` skills to install.");
+        table.AddRow("[green]dotnet skills install aspire orleans[/]", "Install one or more skills by slug or short alias.");
+        table.AddRow("[green]dotnet skills remove --all[/]", "Remove installed catalog skills from the selected target.");
+        table.AddRow("[green]dotnet skills update[/]", "Refresh already installed catalog skills to the selected catalog version.");
+        table.AddRow("[green]dotnet skills sync --force[/]", "Refresh the cached remote catalog payload.");
+        table.AddRow("[green]dotnet skills where[/]", "Print the resolved install path.");
+        AnsiConsole.Write(table);
+        AnsiConsole.WriteLine();
+
+        var notes = string.Join(
+            Environment.NewLine,
+            "- `list`, `recommend`, `install`, and `update` use the latest `catalog-v*` GitHub release by default.",
+            "- `list --installed-only` and `list --local` are equivalent shortcuts for the installed inventory view; `list --available-only` shows only the remaining catalog.",
+            "- `--bundled` skips the network and uses the catalog packaged with the tool.",
+            "- `--catalog-version <version>` pins a specific remote catalog release.",
+            "- `--refresh` forces `install` or `update` to redownload the selected remote catalog first.",
+            "- Short aliases work everywhere: `aspire` resolves to `dotnet-aspire`.",
+            "- Auto target detection probes `.codex`, `.claude`, `.github`, `.gemini`, and `.agents`; if none exist, it falls back to `./skills`.");
+
+        AnsiConsole.Write(new Panel(new Markup(Escape(notes))).Header("Notes").Expand());
+    }
+
+    public static void WriteWarning(string message)
+    {
+        AnsiConsole.MarkupLine($"[yellow]Warning:[/] {Escape(message)}");
+    }
+
+    private static void WriteTitle(string title)
+    {
+        AnsiConsole.Write(new Rule($"[deepskyblue1]{Escape(title)}[/]"));
+    }
+
+    private static Panel BuildSessionPanel(SkillCatalogPackage catalog, SkillInstallLayout layout, int installedCount)
+    {
+        var grid = new Grid();
+        grid.AddColumn(new GridColumn().NoWrap());
+        grid.AddColumn();
+        grid.AddRow(new Markup("[grey]Catalog[/]"), new Markup($"{Escape(catalog.SourceLabel)} [grey]({Escape(catalog.CatalogVersion)})[/]"));
+        grid.AddRow(new Markup("[grey]Target[/]"), new Markup(Escape(layout.PrimaryRoot.FullName)));
+        grid.AddRow(new Markup("[grey]Agent[/]"), new Markup(Escape(layout.Agent.ToString())));
+        grid.AddRow(new Markup("[grey]Scope[/]"), new Markup(Escape(layout.Scope.ToString())));
+        grid.AddRow(new Markup("[grey]Mode[/]"), new Markup(Escape(layout.Mode.ToString())));
+        grid.AddRow(new Markup("[grey]Installed[/]"), new Markup($"{installedCount} of {catalog.Skills.Count} catalog skills"));
+        return new Panel(grid).Header("Session").Expand();
+    }
+
+    private static Panel BuildOperationPanel(
+        SkillCatalogPackage catalog,
+        SkillInstallLayout layout,
+        int writtenCount,
+        int skippedCount,
+        int generatedAdapters)
+    {
+        var grid = new Grid();
+        grid.AddColumn(new GridColumn().NoWrap());
+        grid.AddColumn();
+        grid.AddRow(new Markup("[grey]Catalog[/]"), new Markup($"{Escape(catalog.SourceLabel)} [grey]({Escape(catalog.CatalogVersion)})[/]"));
+        grid.AddRow(new Markup("[grey]Target[/]"), new Markup(Escape(layout.PrimaryRoot.FullName)));
+        grid.AddRow(new Markup("[grey]Written[/]"), new Markup(writtenCount.ToString()));
+        grid.AddRow(new Markup("[grey]Skipped[/]"), new Markup(skippedCount.ToString()));
+
+        if (generatedAdapters > 0)
+        {
+            grid.AddRow(new Markup("[grey]Claude adapters[/]"), new Markup(generatedAdapters.ToString()));
+        }
+
+        return new Panel(grid).Header("Summary").Expand();
+    }
+
+    private static Panel BuildRecommendationPanel(ProjectScanResult scanResult, SkillCatalogPackage catalog, SkillInstallLayout layout)
+    {
+        var grid = new Grid();
+        grid.AddColumn(new GridColumn().NoWrap());
+        grid.AddColumn();
+        grid.AddRow(new Markup("[grey]Project root[/]"), new Markup(Escape(scanResult.ProjectRoot.FullName)));
+        grid.AddRow(new Markup("[grey]Projects[/]"), new Markup(scanResult.ProjectFiles.Count.ToString()));
+        grid.AddRow(new Markup("[grey]Frameworks[/]"), new Markup(scanResult.TargetFrameworks.Count == 0 ? "unknown" : Escape(string.Join(", ", scanResult.TargetFrameworks))));
+        grid.AddRow(new Markup("[grey]Catalog[/]"), new Markup($"{Escape(catalog.SourceLabel)} [grey]({Escape(catalog.CatalogVersion)})[/]"));
+        grid.AddRow(new Markup("[grey]Install target[/]"), new Markup(Escape(layout.PrimaryRoot.FullName)));
+        return new Panel(grid).Header("Scan").Expand();
+    }
+
+    private static Table BuildInstalledSkillsTable(IReadOnlyList<InstalledSkillRecord> installedSkills)
+    {
+        var table = new Table().Expand();
+        table.Title = new TableTitle("Installed skills");
+        table.AddColumn("Skill");
+        table.AddColumn("Installed");
+        table.AddColumn("Latest");
+        table.AddColumn("Status");
+        table.AddColumn("Description");
+
+        foreach (var record in installedSkills)
+        {
+            table.AddRow(
+                BuildSkillCell(record.Skill),
+                Escape(record.InstalledVersion),
+                Escape(record.Skill.Version),
+                record.IsCurrent ? "[green]Current[/]" : "[yellow]Update available[/]",
+                Escape(record.Skill.Description));
+        }
+
+        return table;
+    }
+
+    private static Table BuildAvailableSkillsTable(IReadOnlyList<SkillEntry> availableSkills)
+    {
+        var table = new Table().Expand();
+        table.Title = new TableTitle("Available catalog skills");
+        table.AddColumn("Skill");
+        table.AddColumn("Version");
+        table.AddColumn("Category");
+        table.AddColumn("Description");
+
+        foreach (var skill in availableSkills)
+        {
+            table.AddRow(
+                BuildSkillCell(skill),
+                Escape(skill.Version),
+                Escape(skill.Category),
+                Escape(skill.Description));
+        }
+
+        return table;
+    }
+
+    private static Table BuildOperationTable(string title, IReadOnlyList<SkillActionRow> rows)
+    {
+        var table = new Table().Expand();
+        table.Title = new TableTitle(title);
+        table.AddColumn("Skill");
+        table.AddColumn("From");
+        table.AddColumn("To");
+        table.AddColumn("Action");
+        table.AddColumn("Description");
+
+        foreach (var row in rows.OrderBy(item => item.Skill.Name, StringComparer.Ordinal))
+        {
+            table.AddRow(
+                BuildSkillCell(row.Skill),
+                Escape(row.FromVersion),
+                Escape(row.ToVersion),
+                FormatAction(row.Action),
+                Escape(row.Skill.Description));
+        }
+
+        return table;
+    }
+
+    private static Panel BuildQuickCommandPanel(IReadOnlyList<SkillEntry> installedSkills, IReadOnlyList<SkillEntry> availableSkills)
+    {
+        var lines = new List<string>();
+
+        if (installedSkills.Count > 0)
+        {
+            lines.Add($"Update installed skills:{Environment.NewLine}[green]{Escape($"dotnet skills update {string.Join(' ', installedSkills.Take(3).Select(skill => ToAlias(skill.Name)))}")}[/]");
+            lines.Add($"Remove installed skills:{Environment.NewLine}[green]{Escape("dotnet skills remove --all")}[/]");
+        }
+
+        if (availableSkills.Count > 0)
+        {
+            lines.Add($"Install more skills:{Environment.NewLine}[green]{Escape($"dotnet skills install {string.Join(' ', availableSkills.Take(3).Select(skill => ToAlias(skill.Name)))}")}[/]");
+        }
+
+        lines.Add($"Get dependency-based recommendations:{Environment.NewLine}[green]{Escape("dotnet skills recommend")}[/]");
+        lines.Add($"Refresh the remote cache:{Environment.NewLine}[green]{Escape("dotnet skills sync --force")}[/]");
+
+        return new Panel(new Markup(string.Join($"{Environment.NewLine}{Environment.NewLine}", lines)))
+            .Header("Quick commands")
+            .Expand();
+    }
+
+    private static string BuildSkillCell(SkillEntry skill)
+    {
+        return $"[bold]{Escape(skill.Name)}[/] [dim]({Escape(ToAlias(skill.Name))})[/]";
+    }
+
+    private static string FormatAction(SkillAction action) => action switch
+    {
+        SkillAction.Installed => "[green]Installed[/]",
+        SkillAction.Removed => "[red]Removed[/]",
+        SkillAction.Updated => "[yellow]Updated[/]",
+        SkillAction.Missing => "[grey]Missing[/]",
+        SkillAction.Skipped => "[grey]Skipped[/]",
+        _ => Escape(action.ToString()),
+    };
+
+    private static string FormatConfidence(RecommendationConfidence confidence) => confidence switch
+    {
+        RecommendationConfidence.High => "[green]High[/]",
+        RecommendationConfidence.Medium => "[yellow]Medium[/]",
+        RecommendationConfidence.Low => "[grey]Low[/]",
+        _ => Escape(confidence.ToString()),
+    };
+
+    private static string FormatRecommendationStatus(InstalledSkillRecord? installed)
+    {
+        if (installed is null)
+        {
+            return "[blue]Not installed[/]";
+        }
+
+        return installed.IsCurrent
+            ? $"[green]Installed {Escape(installed.InstalledVersion)}[/]"
+            : $"[yellow]Update to {Escape(installed.Skill.Version)}[/]";
+    }
+
+    private static string Escape(string value) => Markup.Escape(value);
+
+    private static string ToAlias(string skillName) => skillName.StartsWith("dotnet-", StringComparison.OrdinalIgnoreCase)
+        ? skillName["dotnet-".Length..]
+        : skillName;
+}
+
+internal sealed record SkillActionRow(SkillEntry Skill, string FromVersion, string ToVersion, SkillAction Action);
+
+internal enum SkillAction
+{
+    Installed,
+    Removed,
+    Updated,
+    Missing,
+    Skipped,
+}

@@ -22,14 +22,23 @@ internal static class Program
         if (args.Length == 0)
         {
             WriteUsage();
-            return 1;
+            return 0;
         }
 
         var command = args[0];
+        if (IsHelpCommand(command))
+        {
+            WriteUsage();
+            return 0;
+        }
+
         return command switch
         {
             "list" => await RunListAsync(args[1..]),
+            "recommend" => await RunRecommendAsync(args[1..]),
             "install" => await RunInstallAsync(args[1..]),
+            "remove" => await RunRemoveAsync(args[1..]),
+            "update" => await RunUpdateAsync(args[1..]),
             "sync" => await RunSyncAsync(args[1..]),
             "where" => RunWhere(args[1..]),
             _ => UnknownCommand(command),
@@ -37,6 +46,74 @@ internal static class Program
     }
 
     private static async Task<int> RunListAsync(string[] args)
+    {
+        string? targetPath = null;
+        string? cachePath = null;
+        string? catalogVersion = null;
+        string? projectDirectory = null;
+        var bundledOnly = false;
+        var installedOnly = false;
+        var availableOnly = false;
+        var agent = AgentPlatform.Auto;
+        var scope = InstallScope.Project;
+
+        for (var index = 0; index < args.Length; index++)
+        {
+            switch (args[index])
+            {
+                case "--target":
+                    targetPath = ReadValue(args, ++index, "--target");
+                    break;
+                case "--cache-dir":
+                    cachePath = ReadValue(args, ++index, "--cache-dir");
+                    break;
+                case "--catalog-version":
+                    catalogVersion = ReadValue(args, ++index, "--catalog-version");
+                    break;
+                case "--agent":
+                    agent = SkillInstallTarget.ParseAgent(ReadValue(args, ++index, "--agent"));
+                    break;
+                case "--scope":
+                    scope = SkillInstallTarget.ParseScope(ReadValue(args, ++index, "--scope"));
+                    break;
+                case "--project-dir":
+                    projectDirectory = ReadValue(args, ++index, "--project-dir");
+                    break;
+                case "--bundled":
+                    bundledOnly = true;
+                    break;
+                case "--installed-only":
+                case "--local":
+                    installedOnly = true;
+                    break;
+                case "--available-only":
+                    availableOnly = true;
+                    break;
+                default:
+                    return UnknownCommand($"list {string.Join(' ', args)}");
+            }
+        }
+
+        if (installedOnly && availableOnly)
+        {
+            throw new InvalidOperationException("Use either --installed-only/--local or --available-only, not both.");
+        }
+
+        var catalog = await ResolveCatalogForDisplayAsync(bundledOnly, cachePath, catalogVersion);
+        var layout = SkillInstallTarget.Resolve(targetPath, agent, scope, projectDirectory);
+        var installer = new SkillInstaller(catalog);
+        var installedSkills = installer.GetInstalledSkills(layout);
+
+        ConsoleUi.RenderList(
+            catalog,
+            layout,
+            installedSkills,
+            showInstalledSection: !availableOnly,
+            showAvailableSection: !installedOnly);
+        return 0;
+    }
+
+    private static async Task<int> RunRecommendAsync(string[] args)
     {
         string? targetPath = null;
         string? cachePath = null;
@@ -72,23 +149,18 @@ internal static class Program
                     bundledOnly = true;
                     break;
                 default:
-                    return UnknownCommand($"list {string.Join(' ', args)}");
+                    return UnknownCommand($"recommend {string.Join(' ', args)}");
             }
         }
 
-        var catalog = await ResolveCatalogForListAsync(bundledOnly, cachePath, catalogVersion);
-        var installer = new SkillInstaller(catalog);
+        var catalog = await ResolveCatalogForDisplayAsync(bundledOnly, cachePath, catalogVersion);
         var layout = SkillInstallTarget.Resolve(targetPath, agent, scope, projectDirectory);
+        var installer = new SkillInstaller(catalog);
+        var installedSkills = installer.GetInstalledSkills(layout)
+            .ToDictionary(record => record.Skill.Name, StringComparer.OrdinalIgnoreCase);
+        var scanResult = new ProjectSkillRecommender(catalog).Analyze(projectDirectory);
 
-        Console.Error.WriteLine($"Catalog source: {catalog.SourceLabel} ({catalog.CatalogVersion})");
-        Console.Error.WriteLine($"Install target: {layout.PrimaryRoot.FullName}");
-
-        foreach (var skill in catalog.Skills.OrderBy(skill => skill.Name, StringComparer.Ordinal))
-        {
-            var installedSuffix = installer.IsInstalled(skill, layout) ? " (installed)" : string.Empty;
-            Console.WriteLine($"{skill.Name} {skill.Version}{installedSuffix} - {skill.Description}");
-        }
-
+        ConsoleUi.RenderRecommendationSummary(scanResult, catalog, layout, installedSkills);
         return 0;
     }
 
@@ -147,28 +219,177 @@ internal static class Program
         }
 
         var catalog = await ResolveCatalogForInstallAsync(bundledOnly, cachePath, catalogVersion, refreshCatalog);
-        var installer = new SkillInstaller(catalog);
         var layout = SkillInstallTarget.Resolve(targetPath, agent, scope, projectDirectory);
+        var installer = new SkillInstaller(catalog);
+        var installedBefore = installer.GetInstalledSkills(layout)
+            .ToDictionary(record => record.Skill.Name, StringComparer.OrdinalIgnoreCase);
         var selectedSkills = installer.SelectSkills(requestedSkills, installAll);
         var summary = installer.Install(selectedSkills, layout, force);
+        var rows = BuildInstallRows(selectedSkills, installedBefore, force, summary);
 
-        Console.Error.WriteLine($"Catalog source: {catalog.SourceLabel} ({catalog.CatalogVersion})");
-        Console.Error.WriteLine($"Install target: {layout.PrimaryRoot.FullName}");
+        ConsoleUi.RenderInstallSummary(catalog, layout, rows, summary);
+        return 0;
+    }
 
-        Console.WriteLine($"Installed {summary.InstalledCount} skill(s) to {layout.PrimaryRoot.FullName}");
+    private static async Task<int> RunRemoveAsync(string[] args)
+    {
+        var requestedSkills = new List<string>();
+        string? targetPath = null;
+        string? cachePath = null;
+        string? catalogVersion = null;
+        string? projectDirectory = null;
+        var bundledOnly = false;
+        var removeAll = false;
+        var agent = AgentPlatform.Auto;
+        var scope = InstallScope.Project;
 
-        if (summary.GeneratedAdapters > 0)
+        for (var index = 0; index < args.Length; index++)
         {
-            Console.WriteLine($"Generated {summary.GeneratedAdapters} Claude subagent file(s) in {layout.PrimaryRoot.FullName}");
+            switch (args[index])
+            {
+                case "--all":
+                    removeAll = true;
+                    break;
+                case "--target":
+                    targetPath = ReadValue(args, ++index, "--target");
+                    break;
+                case "--cache-dir":
+                    cachePath = ReadValue(args, ++index, "--cache-dir");
+                    break;
+                case "--catalog-version":
+                    catalogVersion = ReadValue(args, ++index, "--catalog-version");
+                    break;
+                case "--agent":
+                    agent = SkillInstallTarget.ParseAgent(ReadValue(args, ++index, "--agent"));
+                    break;
+                case "--scope":
+                    scope = SkillInstallTarget.ParseScope(ReadValue(args, ++index, "--scope"));
+                    break;
+                case "--project-dir":
+                    projectDirectory = ReadValue(args, ++index, "--project-dir");
+                    break;
+                case "--bundled":
+                    bundledOnly = true;
+                    break;
+                default:
+                    requestedSkills.Add(args[index]);
+                    break;
+            }
         }
 
-        if (summary.SkippedExisting.Count > 0)
+        if (!removeAll && requestedSkills.Count == 0)
         {
-            Console.WriteLine($"Skipped existing: {string.Join(", ", summary.SkippedExisting)}");
+            throw new InvalidOperationException("Specify one or more skills to remove, or use `dotnet skills remove --all`.");
         }
 
-        Console.WriteLine(layout.ReloadHint);
+        var catalog = await ResolveCatalogForDisplayAsync(bundledOnly, cachePath, catalogVersion);
+        var layout = SkillInstallTarget.Resolve(targetPath, agent, scope, projectDirectory);
+        var installer = new SkillInstaller(catalog);
+        var installedBefore = installer.GetInstalledSkills(layout)
+            .ToDictionary(record => record.Skill.Name, StringComparer.OrdinalIgnoreCase);
+        var selectedSkills = removeAll
+            ? installedBefore.Values.Select(record => record.Skill).OrderBy(skill => skill.Name, StringComparer.Ordinal).ToArray()
+            : installer.SelectSkills(requestedSkills, installAll: false);
 
+        if (selectedSkills.Count == 0)
+        {
+            ConsoleUi.RenderRemoveSummary(catalog, layout, [], 0, "No catalog skills are currently installed in this target.");
+            return 0;
+        }
+
+        var summary = installer.Remove(selectedSkills, layout);
+        var rows = BuildRemoveRows(selectedSkills, installedBefore, summary);
+
+        ConsoleUi.RenderRemoveSummary(catalog, layout, rows, summary.RemovedCount, null);
+        return 0;
+    }
+
+    private static async Task<int> RunUpdateAsync(string[] args)
+    {
+        var requestedSkills = new List<string>();
+        string? targetPath = null;
+        string? cachePath = null;
+        string? catalogVersion = null;
+        string? projectDirectory = null;
+        var force = false;
+        var bundledOnly = false;
+        var refreshCatalog = false;
+        var agent = AgentPlatform.Auto;
+        var scope = InstallScope.Project;
+
+        for (var index = 0; index < args.Length; index++)
+        {
+            switch (args[index])
+            {
+                case "--force":
+                    force = true;
+                    break;
+                case "--target":
+                    targetPath = ReadValue(args, ++index, "--target");
+                    break;
+                case "--cache-dir":
+                    cachePath = ReadValue(args, ++index, "--cache-dir");
+                    break;
+                case "--catalog-version":
+                    catalogVersion = ReadValue(args, ++index, "--catalog-version");
+                    break;
+                case "--agent":
+                    agent = SkillInstallTarget.ParseAgent(ReadValue(args, ++index, "--agent"));
+                    break;
+                case "--scope":
+                    scope = SkillInstallTarget.ParseScope(ReadValue(args, ++index, "--scope"));
+                    break;
+                case "--project-dir":
+                    projectDirectory = ReadValue(args, ++index, "--project-dir");
+                    break;
+                case "--bundled":
+                    bundledOnly = true;
+                    break;
+                case "--refresh":
+                    refreshCatalog = true;
+                    break;
+                default:
+                    requestedSkills.Add(args[index]);
+                    break;
+            }
+        }
+
+        var catalog = await ResolveCatalogForInstallAsync(bundledOnly, cachePath, catalogVersion, refreshCatalog);
+        var layout = SkillInstallTarget.Resolve(targetPath, agent, scope, projectDirectory);
+        var installer = new SkillInstaller(catalog);
+        var installedBefore = installer.GetInstalledSkills(layout)
+            .ToDictionary(record => record.Skill.Name, StringComparer.OrdinalIgnoreCase);
+
+        if (installedBefore.Count == 0)
+        {
+            ConsoleUi.RenderUpdateSummary(catalog, layout, [], 0, "No catalog skills are currently installed in this target.");
+            return 0;
+        }
+
+        var selectedInstalledSkills = ResolveInstalledSkillsToUpdate(requestedSkills, installer, installedBefore);
+        if (selectedInstalledSkills.Count == 0)
+        {
+            ConsoleUi.RenderUpdateSummary(catalog, layout, [], 0, "No matching installed catalog skills were selected for update.");
+            return 0;
+        }
+
+        var updateCandidates = force
+            ? selectedInstalledSkills
+            : selectedInstalledSkills.Where(record => !record.IsCurrent).ToArray();
+
+        if (updateCandidates.Count == 0)
+        {
+            ConsoleUi.RenderUpdateSummary(catalog, layout, [], 0, "All selected installed skills already match the selected catalog version.");
+            return 0;
+        }
+
+        installer.Install(updateCandidates.Select(record => record.Skill).ToArray(), layout, force: true);
+
+        var rows = updateCandidates
+            .Select(record => new SkillActionRow(record.Skill, record.InstalledVersion, record.Skill.Version, SkillAction.Updated))
+            .ToArray();
+
+        ConsoleUi.RenderUpdateSummary(catalog, layout, rows, rows.Length, null);
         return 0;
     }
 
@@ -231,14 +452,11 @@ internal static class Program
 
         var client = CreateReleaseClient(cachePath);
         var catalog = await client.SyncAsync(catalogVersion, force, CancellationToken.None);
-
-        Console.WriteLine($"Synced catalog {catalog.CatalogVersion} from {catalog.SourceLabel}");
-        Console.WriteLine($"Cache: {catalog.CatalogRoot.FullName}");
-
+        ConsoleUi.RenderSyncSummary(catalog);
         return 0;
     }
 
-    private static async Task<SkillCatalogPackage> ResolveCatalogForListAsync(bool bundledOnly, string? cachePath, string? catalogVersion)
+    private static async Task<SkillCatalogPackage> ResolveCatalogForDisplayAsync(bool bundledOnly, string? cachePath, string? catalogVersion)
     {
         if (bundledOnly)
         {
@@ -257,8 +475,8 @@ internal static class Program
         }
         catch (Exception exception) when (string.IsNullOrWhiteSpace(catalogVersion))
         {
-            Console.Error.WriteLine($"Remote catalog unavailable: {exception.Message}");
-            Console.Error.WriteLine("Falling back to bundled catalog.");
+            ConsoleUi.WriteWarning($"Remote catalog unavailable: {exception.Message}");
+            ConsoleUi.WriteWarning("Falling back to bundled catalog.");
             return SkillCatalogPackage.LoadBundled();
         }
     }
@@ -278,8 +496,8 @@ internal static class Program
         }
         catch (Exception exception) when (string.IsNullOrWhiteSpace(catalogVersion))
         {
-            Console.Error.WriteLine($"Remote catalog unavailable: {exception.Message}");
-            Console.Error.WriteLine("Falling back to bundled catalog.");
+            ConsoleUi.WriteWarning($"Remote catalog unavailable: {exception.Message}");
+            ConsoleUi.WriteWarning("Falling back to bundled catalog.");
             return SkillCatalogPackage.LoadBundled();
         }
     }
@@ -305,9 +523,95 @@ internal static class Program
         skillsDirectory.Create();
 
         var manifestPath = Path.Combine(catalogDirectory.FullName, "skills.json");
-        await File.WriteAllTextAsync(manifestPath, System.Text.Json.JsonSerializer.Serialize(manifest, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
+        await File.WriteAllTextAsync(
+            manifestPath,
+            System.Text.Json.JsonSerializer.Serialize(
+                manifest,
+                new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
 
         return directory;
+    }
+
+    private static IReadOnlyList<InstalledSkillRecord> ResolveInstalledSkillsToUpdate(
+        IReadOnlyList<string> requestedSkills,
+        SkillInstaller installer,
+        IReadOnlyDictionary<string, InstalledSkillRecord> installedBefore)
+    {
+        if (requestedSkills.Count == 0)
+        {
+            return installedBefore.Values.OrderBy(record => record.Skill.Name, StringComparer.Ordinal).ToArray();
+        }
+
+        var selectedSkills = installer.SelectSkills(requestedSkills, installAll: false);
+        var notInstalled = selectedSkills
+            .Where(skill => !installedBefore.ContainsKey(skill.Name))
+            .Select(skill => skill.Name)
+            .ToArray();
+
+        if (notInstalled.Length > 0)
+        {
+            throw new InvalidOperationException($"Skill(s) are not installed in the selected target: {string.Join(", ", notInstalled)}. Use `dotnet skills install ...` first.");
+        }
+
+        return selectedSkills
+            .Select(skill => installedBefore[skill.Name])
+            .OrderBy(record => record.Skill.Name, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static IReadOnlyList<SkillActionRow> BuildInstallRows(
+        IReadOnlyList<SkillEntry> selectedSkills,
+        IReadOnlyDictionary<string, InstalledSkillRecord> installedBefore,
+        bool force,
+        SkillInstallSummary summary)
+    {
+        var skipped = summary.SkippedExisting.ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        return selectedSkills
+            .Select(skill =>
+            {
+                installedBefore.TryGetValue(skill.Name, out var previous);
+                var action = skipped.Contains(skill.Name)
+                    ? SkillAction.Skipped
+                    : previous is null
+                        ? SkillAction.Installed
+                        : force
+                            ? SkillAction.Updated
+                            : SkillAction.Installed;
+
+                return new SkillActionRow(
+                    skill,
+                    previous?.InstalledVersion ?? "-",
+                    skill.Version,
+                    action);
+            })
+            .OrderBy(row => row.Skill.Name, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static IReadOnlyList<SkillActionRow> BuildRemoveRows(
+        IReadOnlyList<SkillEntry> selectedSkills,
+        IReadOnlyDictionary<string, InstalledSkillRecord> installedBefore,
+        SkillRemoveSummary summary)
+    {
+        var missing = summary.MissingSkills.ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        return selectedSkills
+            .Select(skill =>
+            {
+                installedBefore.TryGetValue(skill.Name, out var previous);
+                var action = missing.Contains(skill.Name)
+                    ? SkillAction.Missing
+                    : SkillAction.Removed;
+
+                return new SkillActionRow(
+                    skill,
+                    previous?.InstalledVersion ?? "-",
+                    "-",
+                    action);
+            })
+            .OrderBy(row => row.Skill.Name, StringComparer.Ordinal)
+            .ToArray();
     }
 
     private static string ReadValue(string[] args, int index, string optionName)
@@ -320,6 +624,11 @@ internal static class Program
         return args[index];
     }
 
+    private static bool IsHelpCommand(string command) =>
+        string.Equals(command, "help", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(command, "--help", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(command, "-h", StringComparison.OrdinalIgnoreCase);
+
     private static int UnknownCommand(string command)
     {
         Console.Error.WriteLine($"Unknown command: {command}");
@@ -327,33 +636,5 @@ internal static class Program
         return 1;
     }
 
-    private static void WriteUsage()
-    {
-        Console.WriteLine(
-            """
-            dotnet-skills
-
-            Usage:
-              dotnet skills list [--bundled] [--catalog-version 1.2.3] [--target /path/to/skills]
-              dotnet skills where [--agent auto|copilot] [--scope project]
-              dotnet skills sync [--catalog-version 1.2.3] [--cache-dir /path/to/cache] [--force]
-              dotnet skills install
-              dotnet skills install aspire orleans
-              dotnet skills install aspire
-              dotnet skills install aspire --agent anthropic --scope project
-              dotnet skills install aspire --agent gemini --scope project
-              dotnet skills install --all --target /path/to/skills --force
-
-            Notes:
-              - list, sync, and install use the latest catalog-v* GitHub release by default.
-              - --bundled skips the network and uses the catalog packaged with the tool.
-              - --catalog-version pins a specific catalog-v<version> release instead of latest.
-              - --refresh forces install to redownload the selected remote catalog.
-              - skill IDs stay namespaced as dotnet-*, but commands accept short aliases such as aspire -> dotnet-aspire.
-              - When --agent is omitted, the tool uses --agent auto --scope project and probes `.codex`, `.claude`, `.github`, `.gemini`, and `.agents`; if none exist, it falls back to `./skills`.
-              - --agent and --scope map the install path for Codex, Claude, Copilot, and Gemini layouts.
-              - Gemini uses `.gemini/skills` when a Gemini root exists and falls back to `.agents/skills` for shared agent layouts.
-              - Claude installs native `.claude/agents` subagent adapters generated from `SKILL.md`.
-            """);
-    }
+    private static void WriteUsage() => ConsoleUi.RenderUsage();
 }
