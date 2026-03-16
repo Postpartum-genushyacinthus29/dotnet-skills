@@ -1,214 +1,99 @@
-# AnalysisLevel and .editorconfig Configuration
-
-This reference covers MSBuild properties for SDK analyzers and .editorconfig settings for rule configuration.
+# MSBuild Properties and .editorconfig for Code Analysis
 
 ## MSBuild Properties
 
-Configure these in `Directory.Build.props` or individual project files.
+Set in `Directory.Build.props` or project files.
 
 ### EnableNETAnalyzers
 
 ```xml
-<PropertyGroup>
-  <EnableNETAnalyzers>true</EnableNETAnalyzers>
-</PropertyGroup>
+<EnableNETAnalyzers>true</EnableNETAnalyzers>
 ```
-
-- Enabled by default in .NET 5+.
-- Set explicitly for clarity and to prevent accidental disabling.
+Default true in .NET 5+. Set explicitly to prevent accidental disabling.
 
 ### AnalysisLevel
 
-Controls which rules are enabled based on .NET version and analysis mode.
+Values: `5.0`–`10.0` (specific SDK), `latest`, `latest-recommended`, `latest-minimum`, `latest-all`, `preview`.
 
-```xml
-<PropertyGroup>
-  <AnalysisLevel>latest</AnalysisLevel>
-</PropertyGroup>
-```
-
-| Value | Meaning |
-|-------|---------|
-| `5.0`, `6.0`, `7.0`, `8.0`, `9.0`, `10.0` | Rules available in that SDK version |
-| `latest` | Rules from the installed SDK version |
-| `latest-recommended` | Latest SDK with Recommended mode |
-| `latest-minimum` | Latest SDK with Minimum mode |
-| `latest-all` | Latest SDK with All mode |
-| `preview` | Experimental rules from preview SDK |
+Combined syntax includes mode: `<AnalysisLevel>latest-recommended</AnalysisLevel>` equals `latest` + `Recommended` mode.
 
 ### AnalysisMode
 
-Controls which subset of rules are enabled.
-
-```xml
-<PropertyGroup>
-  <AnalysisMode>Recommended</AnalysisMode>
-</PropertyGroup>
-```
-
-| Mode | Description |
-|------|-------------|
-| `None` | All rules disabled except explicitly enabled |
-| `Default` | Default severity for all rules (same as not setting) |
-| `Minimum` | Small set of critical rules |
-| `Recommended` | Common high-value rules (start here) |
-| `All` | Every available rule |
-
-### Combined Syntax
-
-AnalysisLevel can include the mode:
-
-```xml
-<PropertyGroup>
-  <AnalysisLevel>latest-recommended</AnalysisLevel>
-</PropertyGroup>
-```
-
-This is equivalent to:
-
-```xml
-<PropertyGroup>
-  <AnalysisLevel>latest</AnalysisLevel>
-  <AnalysisMode>Recommended</AnalysisMode>
-</PropertyGroup>
-```
+Values: `None` (all off), `Default`, `Minimum` (critical only), `Recommended` (start here), `All`.
 
 ### Category-Specific AnalysisMode
 
-Override mode for specific categories:
-
 ```xml
-<PropertyGroup>
-  <AnalysisLevel>latest-recommended</AnalysisLevel>
-  <AnalysisModeSecurity>All</AnalysisModeSecurity>
-  <AnalysisModeReliability>All</AnalysisModeReliability>
-</PropertyGroup>
+<AnalysisLevel>latest-recommended</AnalysisLevel>
+<AnalysisModeSecurity>All</AnalysisModeSecurity>
+<AnalysisModeReliability>All</AnalysisModeReliability>
 ```
-
-Available categories: `Design`, `Documentation`, `Globalization`, `Interoperability`, `Maintainability`, `Naming`, `Performance`, `Reliability`, `Security`, `Usage`.
+Categories: Design, Documentation, Globalization, Interoperability, Maintainability, Naming, Performance, Reliability, Security, Usage.
 
 ### TreatWarningsAsErrors
 
 ```xml
-<PropertyGroup>
-  <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-</PropertyGroup>
+<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 ```
+All warnings fail the build. Use for new projects or clean codebases. Agent rule: never disable to make a build pass.
 
-Makes all warnings fail the build. Combine with explicit severity settings to control which rules are promoted.
-
-### WarningsAsErrors (Selective)
+### WarningsAsErrors (selective — preferred for legacy)
 
 ```xml
-<PropertyGroup>
-  <WarningsAsErrors>CA2000;CA3001</WarningsAsErrors>
-</PropertyGroup>
+<WarningsAsErrors>CS8019;CS0219;CS0168;CA2000;CA3001</WarningsAsErrors>
 ```
-
-Promote specific warnings to errors without affecting others.
+Promote specific IDs to errors. Preferred for gradual adoption: add IDs as you fix each batch. Agent rule: never remove IDs from this list to make a build pass.
 
 ### WarningsNotAsErrors
 
 ```xml
-<PropertyGroup>
-  <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-  <WarningsNotAsErrors>CA1707</WarningsNotAsErrors>
-</PropertyGroup>
+<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+<WarningsNotAsErrors>CA1707</WarningsNotAsErrors>
 ```
-
-Keep specific warnings as warnings when using `TreatWarningsAsErrors`.
+Explicit exceptions when using TreatWarningsAsErrors.
 
 ### NoWarn
 
 ```xml
-<PropertyGroup>
-  <NoWarn>$(NoWarn);CA1062</NoWarn>
-</PropertyGroup>
+<NoWarn>$(NoWarn);CA1062</NoWarn>
 ```
-
-Disable specific warnings entirely. Use sparingly; prefer .editorconfig for visibility.
+Disables warnings entirely. Use sparingly; prefer .editorconfig for visibility.
 
 ### EnforceCodeStyleInBuild
 
 ```xml
-<PropertyGroup>
-  <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-</PropertyGroup>
+<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
 ```
+Enables IDE code style rules during build (off by default for performance).
 
-Enable IDE code style rules during build (disabled by default for performance).
+## .editorconfig
 
-## .editorconfig Configuration
+Place at repo root. Rules cascade to subdirectories.
 
-Place at repository root. Rules cascade to subdirectories.
-
-### Basic Structure
-
-```editorconfig
-# Top-level settings
-root = true
-
-[*.cs]
-# All C# files
-
-[*.{cs,vb}]
-# All .NET code files
-
-[**/Tests/**/*.cs]
-# Test files only
-```
-
-### Analyzer Severity Configuration
+### Severity per rule
 
 ```editorconfig
 [*.cs]
-# Set specific rule severity
-dotnet_diagnostic.CA1000.severity = warning
 dotnet_diagnostic.CA2000.severity = error
 dotnet_diagnostic.CA1707.severity = none
-
-# Bulk category severity (requires .NET 6+)
-dotnet_analyzer_diagnostic.category-Security.severity = error
-dotnet_analyzer_diagnostic.category-Performance.severity = warning
 ```
 
-### Common Patterns
-
-#### Production Code Hardened
+### Severity per category (.NET 6+)
 
 ```editorconfig
 [*.cs]
-# Security rules as errors
 dotnet_analyzer_diagnostic.category-Security.severity = error
-
-# Reliability rules as warnings
-dotnet_analyzer_diagnostic.category-Reliability.severity = warning
-
-# Performance rules as warnings
 dotnet_analyzer_diagnostic.category-Performance.severity = warning
 ```
 
-#### Test Code Relaxed
+### Scope patterns
 
 ```editorconfig
 [**/Tests/**/*.cs]
-[**/Test/**/*.cs]
-[**/*.Tests/**/*.cs]
-# Relax naming rules for test methods
 dotnet_diagnostic.CA1707.severity = none
-
-# Relax null checks for test assertions
 dotnet_diagnostic.CA1062.severity = none
 
-# Allow test-specific patterns
-dotnet_diagnostic.CA2007.severity = none
-```
-
-#### Generated Code Excluded
-
-```editorconfig
 [*.generated.cs]
-[*.designer.cs]
 generated_code = true
 ```
 
@@ -216,21 +101,12 @@ generated_code = true
 
 ```editorconfig
 [*.cs]
-# Namespace preferences
 csharp_style_namespace_declarations = file_scoped:suggestion
-
-# Expression-bodied members
 csharp_style_expression_bodied_methods = when_on_single_line:suggestion
 csharp_style_expression_bodied_properties = true:suggestion
-
-# Pattern matching
 csharp_style_pattern_matching_over_as_with_null_check = true:warning
 csharp_style_pattern_matching_over_is_with_cast_check = true:warning
-
-# Null checking
 csharp_style_prefer_null_check_over_type_check = true:suggestion
-
-# var preferences
 csharp_style_var_for_built_in_types = true:suggestion
 csharp_style_var_when_type_is_apparent = true:suggestion
 csharp_style_var_elsewhere = true:suggestion
@@ -240,12 +116,9 @@ csharp_style_var_elsewhere = true:suggestion
 
 ```editorconfig
 [*.cs]
-# Indentation
 indent_style = space
 indent_size = 4
 tab_width = 4
-
-# New lines
 csharp_new_line_before_open_brace = all
 csharp_new_line_before_else = true
 csharp_new_line_before_catch = true
@@ -270,7 +143,7 @@ csharp_new_line_before_finally = true
 </Project>
 ```
 
-### .editorconfig (Root)
+### .editorconfig (root)
 
 ```editorconfig
 root = true
@@ -284,34 +157,24 @@ trim_trailing_whitespace = true
 insert_final_newline = true
 
 [*.cs]
-# Security rules as errors
 dotnet_analyzer_diagnostic.category-Security.severity = error
-
-# Reliability rules as warnings, promote over time
 dotnet_analyzer_diagnostic.category-Reliability.severity = warning
 
-# Relax test files
 [**/Tests/**/*.cs]
 dotnet_diagnostic.CA1707.severity = none
 dotnet_diagnostic.CA1062.severity = none
 ```
 
-## Verification Commands
+## Verification
 
 ```bash
-# Build with analyzer output
 dotnet build
-
-# Build with detailed analyzer timing
 dotnet build /p:ReportAnalyzer=true
-
-# Check effective analyzer configuration
-dotnet build /v:d | grep -i "analyzer"
 ```
 
 ## References
 
-- [AnalysisLevel documentation](https://learn.microsoft.com/en-us/dotnet/core/project-sdk/msbuild-props#analysislevel)
-- [Code analysis configuration](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/configuration-options)
-- [EditorConfig settings](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/configuration-files)
+- [AnalysisLevel](https://learn.microsoft.com/en-us/dotnet/core/project-sdk/msbuild-props#analysislevel)
+- [Configuration options](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/configuration-options)
+- [EditorConfig](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/configuration-files)
 - [Suppress warnings](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/suppress-warnings)
