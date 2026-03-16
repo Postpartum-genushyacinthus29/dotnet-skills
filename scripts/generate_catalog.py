@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import argparse
-import html
 import json
 import re
 import sys
@@ -117,45 +116,26 @@ def render_catalog(skills: list[dict[str, str]]) -> str:
         items = grouped[category]
         if not items:
             continue
+
         lines.extend(
             [
                 f"### {category}",
                 "",
-                "<table>",
-                "  <colgroup>",
-                '    <col width="24%" />',
-                '    <col width="9%" />',
-                '    <col width="49%" />',
-                '    <col width="18%" />',
-                "  </colgroup>",
-                "  <thead>",
-                "    <tr>",
-                '      <th align="left">Skill</th>',
-                '      <th align="left">Version</th>',
-                '      <th align="left">Description</th>',
-                '      <th align="left">Folder</th>',
-                "    </tr>",
-                "  </thead>",
-                "  <tbody>",
+                "| Skill | Version | Description |",
+                "|-------|---------|-------------|",
             ]
         )
-        for item in items:
-            skill_name = html.escape(item["name"]).replace("-", "&#8209;")
-            version = html.escape(item["version"])
-            description = html.escape(item["description"])
-            path = html.escape(item["path"])
 
-            lines.extend(
-                [
-                    "    <tr>",
-                    f'      <td><a href="{path}"><code>{skill_name}</code></a></td>',
-                    f"      <td><code>{version}</code></td>",
-                    f"      <td>{description}</td>",
-                    f'      <td><a href="{path}"><code>{path}</code></a></td>',
-                    "    </tr>",
-                ]
-            )
-        lines.extend(["  </tbody>", "</table>", ""])
+        for item in items:
+            skill_name = item["name"]
+            version = item["version"]
+            # Escape pipes in description for markdown table
+            description = item["description"].replace("|", "\\|")
+            path = item["path"]
+
+            lines.append(f"| [`{skill_name}`]({path}) | `{version}` | {description} |")
+
+        lines.append("")
 
     lines.append(END_MARKER)
     return "\n".join(lines)
