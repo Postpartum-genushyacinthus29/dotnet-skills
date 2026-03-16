@@ -1,6 +1,6 @@
 ---
 name: dotnet-code-analysis
-version: "2.0.0"
+version: "1.0.1"
 category: "Code Quality"
 description: "Use the free built-in .NET SDK analyzers and analysis levels with gradual Roslyn warning promotion. Use when a .NET repo needs first-party code analysis, `EnableNETAnalyzers`, `AnalysisLevel`, or warning-as-error policy wired into build and CI."
 compatibility: "Requires a .NET SDK-based repository; respects the repo's `AGENTS.md` commands first."
