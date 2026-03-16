@@ -95,17 +95,27 @@ Available categories: `Design`, `Documentation`, `Globalization`, `Interoperabil
 </PropertyGroup>
 ```
 
-Makes all warnings fail the build. Combine with explicit severity settings to control which rules are promoted.
+Makes all warnings fail the build. Best for new projects or mature codebases that have already cleared their warning backlog. Combine with `WarningsNotAsErrors` for explicit exceptions.
 
-### WarningsAsErrors (Selective)
+**Agent rule**: never disable, remove, or comment out this property to make a build pass. Fix the code instead or ask the user.
+
+### WarningsAsErrors (Selective — Preferred for Legacy Codebases)
 
 ```xml
 <PropertyGroup>
-  <WarningsAsErrors>CA2000;CA3001</WarningsAsErrors>
+  <WarningsAsErrors>CS8019;CS0219;CS0168;CA2000;CA3001</WarningsAsErrors>
 </PropertyGroup>
 ```
 
-Promote specific warnings to errors without affecting others.
+Promote specific warnings to errors without affecting others. This is the recommended approach for gradual adoption in legacy projects:
+
+1. Start with trivial hygiene warnings (CS8019 unused usings, CS0219/CS0168 unused variables).
+2. Fix all occurrences in the codebase.
+3. Add the IDs to `WarningsAsErrors` so they stay enforced.
+4. Ask the user which category to promote next.
+5. Repeat until the codebase is clean enough to switch to `TreatWarningsAsErrors`.
+
+**Agent rule**: never remove IDs from this list to make a build pass. The user chose these IDs deliberately.
 
 ### WarningsNotAsErrors
 
@@ -116,7 +126,7 @@ Promote specific warnings to errors without affecting others.
 </PropertyGroup>
 ```
 
-Keep specific warnings as warnings when using `TreatWarningsAsErrors`.
+Keep specific warnings as warnings when using `TreatWarningsAsErrors`. Use this for rules the team has explicitly decided to defer.
 
 ### NoWarn
 
