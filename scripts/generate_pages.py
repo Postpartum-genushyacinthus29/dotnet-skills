@@ -170,24 +170,6 @@ def get_git_last_modified(path: str) -> str:
     return date.today().isoformat()
 
 
-def get_git_dates_for_skills(skills: list) -> dict:
-    """Get git last modified dates for all skills."""
-    dates = {}
-    for skill in skills:
-        skill_path = skill.get("path", f"skills/{skill['name']}")
-        dates[skill["name"]] = get_git_last_modified(skill_path)
-    return dates
-
-
-def get_git_dates_for_agents(agents: list) -> dict:
-    """Get git last modified dates for all agents."""
-    dates = {}
-    for agent in agents:
-        agent_path = agent.get("path", f"agents/{agent['name']}")
-        dates[agent["name"]] = get_git_last_modified(agent_path)
-    return dates
-
-
 def get_main_page_date() -> str:
     """Get the last commit date for the main page template."""
     return get_git_last_modified("github-pages/index.html")
@@ -195,61 +177,14 @@ def get_main_page_date() -> str:
 
 def render_sitemap(
     site_url: str,
-    skills: list,
-    agents: list,
-    skill_dates: dict,
-    agent_dates: dict,
-    main_page_date: str
+    main_page_date: str,
 ) -> str:
-    """Render an enhanced sitemap for the GitHub Pages site with skill and agent anchors.
+    """Render a standards-compliant sitemap for the GitHub Pages site.
 
-    Uses actual git commit dates for lastmod instead of today's date.
+    This catalog is a single-page app, so only the canonical page URL is
+    included. Fragment identifiers are intentionally omitted because they are
+    not crawlable in sitemap processing.
     """
-    # Build skill URLs with fragment identifiers and git dates
-    skill_entries = []
-    for skill in skills:
-        name = html.escape(skill["name"])
-        lastmod = skill_dates.get(skill["name"], main_page_date)
-        skill_entries.append(f"""  <url>
-    <loc>{site_url}#skill-{name}</loc>
-    <lastmod>{lastmod}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>""")
-
-    # Build agent URLs with fragment identifiers and git dates
-    agent_entries = []
-    for agent in agents:
-        name = html.escape(agent["name"])
-        lastmod = agent_dates.get(agent["name"], main_page_date)
-        agent_entries.append(f"""  <url>
-    <loc>{site_url}#agent-{name}</loc>
-    <lastmod>{lastmod}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>""")
-
-    # Build category URLs - use newest skill date in each category
-    category_dates = {}
-    for skill in skills:
-        cat = skill["category"]
-        skill_date = skill_dates.get(skill["name"], main_page_date)
-        if cat not in category_dates or skill_date > category_dates[cat]:
-            category_dates[cat] = skill_date
-
-    categories = sorted(set(s["category"] for s in skills))
-    category_entries = []
-    for cat in categories:
-        escaped_cat = html.escape(cat).replace(" ", "-").lower()
-        lastmod = category_dates.get(cat, main_page_date)
-        category_entries.append(f"""  <url>
-    <loc>{site_url}#category-{escaped_cat}</loc>
-    <lastmod>{lastmod}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>""")
-
-    all_entries = "\n".join(skill_entries + agent_entries + category_entries)
 
     return f"""<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -259,25 +194,6 @@ def render_sitemap(
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
-  <url>
-    <loc>{site_url}#about</loc>
-    <lastmod>{main_page_date}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>{site_url}#agents</loc>
-    <lastmod>{main_page_date}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>{site_url}#catalog</loc>
-    <lastmod>{main_page_date}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-{all_entries}
 </urlset>
 """
 
@@ -367,14 +283,11 @@ def main() -> int:
 
     print(f"Generated {OUTPUT_PATH}")
 
-    # Get git dates for sitemap
-    print("Fetching git dates for skills and agents...")
-    skill_dates = get_git_dates_for_skills(skills)
-    agent_dates = get_git_dates_for_agents(agents)
+    # Get canonical date for the root page in sitemap lastmod
     main_page_date = get_main_page_date()
 
     with open(SITEMAP_PATH, "w", encoding="utf-8") as f:
-        f.write(render_sitemap(site_url, skills, agents, skill_dates, agent_dates, main_page_date))
+        f.write(render_sitemap(site_url, main_page_date))
 
     print(f"Generated {SITEMAP_PATH}")
 
