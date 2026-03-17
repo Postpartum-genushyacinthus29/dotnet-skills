@@ -5,7 +5,7 @@ zone_pivot_groups: programming-languages
 author:  rogerbarreto
 ms.topic: tutorial
 ms.author: rbarreto
-ms.date: 12/12/2025
+ms.date: 03/11/2026
 ms.service: agent-framework
 ---
 
@@ -23,6 +23,8 @@ Add the required NuGet packages to your project.
 dotnet add package Microsoft.Agents.AI.Anthropic --prerelease
 ```
 
+The `Microsoft.Agents.AI.Anthropic` package uses `Anthropic` 12.8.0 or later and supports Claude Haiku, Sonnet, and Opus model families.
+
 If you're using Azure Foundry, also add:
 
 ```powershell
@@ -39,8 +41,11 @@ Set up the required environment variables for Anthropic authentication:
 ```powershell
 # Required for Anthropic API access
 $env:ANTHROPIC_API_KEY="your-anthropic-api-key"
-$env:ANTHROPIC_DEPLOYMENT_NAME="claude-haiku-4-5"  # or your preferred model
+$env:ANTHROPIC_DEPLOYMENT_NAME="claude-sonnet-4-5"  # or your preferred model (e.g. claude-opus-4-5, claude-haiku-4-5)
 ```
+
+> [!NOTE]
+> `claude-haiku-3` is deprecated. Prefer `claude-haiku-4-5`, `claude-sonnet-4-5`, `claude-sonnet-4-6`, or `claude-opus-4-5` for new workloads.
 
 You can get an API key from the [Anthropic Console](https://console.anthropic.com/).
 
@@ -49,14 +54,14 @@ You can get an API key from the [Anthropic Console](https://console.anthropic.co
 ```powershell
 $env:ANTHROPIC_RESOURCE="your-foundry-resource-name"  # Subdomain before .services.ai.azure.com
 $env:ANTHROPIC_API_KEY="your-anthropic-api-key"
-$env:ANTHROPIC_DEPLOYMENT_NAME="claude-haiku-4-5"
+$env:ANTHROPIC_DEPLOYMENT_NAME="claude-sonnet-4-5"
 ```
 
 ### For Azure Foundry with Azure CLI
 
 ```powershell
 $env:ANTHROPIC_RESOURCE="your-foundry-resource-name"  # Subdomain before .services.ai.azure.com
-$env:ANTHROPIC_DEPLOYMENT_NAME="claude-haiku-4-5"
+$env:ANTHROPIC_DEPLOYMENT_NAME="claude-sonnet-4-5"
 ```
 
 > [!NOTE]
@@ -70,7 +75,7 @@ The simplest way to create an Anthropic agent using the public API:
 
 ```csharp
 var apiKey = Environment.GetEnvironmentVariable("ANTHROPIC_API_KEY");
-var deploymentName = Environment.GetEnvironmentVariable("ANTHROPIC_DEPLOYMENT_NAME") ?? "claude-haiku-4-5";
+var deploymentName = Environment.GetEnvironmentVariable("ANTHROPIC_DEPLOYMENT_NAME") ?? "claude-sonnet-4-5";
 
 AnthropicClient client = new() { APIKey = apiKey };
 
@@ -90,7 +95,7 @@ After you've set up Anthropic on Azure Foundry, you can use it with API key auth
 ```csharp
 var resource = Environment.GetEnvironmentVariable("ANTHROPIC_RESOURCE");
 var apiKey = Environment.GetEnvironmentVariable("ANTHROPIC_API_KEY");
-var deploymentName = Environment.GetEnvironmentVariable("ANTHROPIC_DEPLOYMENT_NAME") ?? "claude-haiku-4-5";
+var deploymentName = Environment.GetEnvironmentVariable("ANTHROPIC_DEPLOYMENT_NAME") ?? "claude-sonnet-4-5";
 
 AnthropicClient client = new AnthropicFoundryClient(
     new AnthropicFoundryApiKeyCredentials(apiKey, resource));
@@ -109,7 +114,7 @@ For environments where Azure Credentials are preferred:
 
 ```csharp
 var resource = Environment.GetEnvironmentVariable("ANTHROPIC_RESOURCE");
-var deploymentName = Environment.GetEnvironmentVariable("ANTHROPIC_DEPLOYMENT_NAME") ?? "claude-haiku-4-5";
+var deploymentName = Environment.GetEnvironmentVariable("ANTHROPIC_DEPLOYMENT_NAME") ?? "claude-sonnet-4-5";
 
 AnthropicClient client = new AnthropicFoundryClient(
     new AnthropicAzureTokenCredential(new AzureCliCredential(), resource));
@@ -166,14 +171,14 @@ Set up the required environment variables for Anthropic authentication:
 ```bash
 # Required for Anthropic API access
 ANTHROPIC_API_KEY="your-anthropic-api-key"
-ANTHROPIC_CHAT_MODEL_ID="claude-sonnet-4-5-20250929"  # or your preferred model
+ANTHROPIC_CHAT_MODEL_ID="claude-sonnet-4-6-20260301"  # or your preferred model
 ```
 
 Alternatively, you can use a `.env` file in your project root:
 
 ```env
 ANTHROPIC_API_KEY=your-anthropic-api-key
-ANTHROPIC_CHAT_MODEL_ID=claude-sonnet-4-5-20250929
+ANTHROPIC_CHAT_MODEL_ID=claude-sonnet-4-6-20260301
 ```
 
 You can get an API key from the [Anthropic Console](https://console.anthropic.com/).
@@ -212,7 +217,7 @@ You can provide explicit configuration instead of relying on environment variabl
 ```python
 async def explicit_config_example():
     agent = AnthropicClient(
-        model_id="claude-sonnet-4-5-20250929",
+        model_id="claude-sonnet-4-6-20260301",
         api_key="your-api-key-here",
     ).as_agent(
         name="HelpfulAssistant",
