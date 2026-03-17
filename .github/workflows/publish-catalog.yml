@@ -50,23 +50,31 @@ jobs:
           fi
 
           if [[ -z "$latest_tag" ]]; then
-            if [[ "$(git rev-list --count "$main_ref")" -gt 0 ]]; then
-              echo "has_new_commits=true" >> "$GITHUB_OUTPUT"
-            else
-              echo "has_new_commits=false" >> "$GITHUB_OUTPUT"
-            fi
+            echo "has_new_commits=true" >> "$GITHUB_OUTPUT"
             echo "latest_tag=" >> "$GITHUB_OUTPUT"
             echo "override=false" >> "$GITHUB_OUTPUT"
+            echo "reason=initial_catalog_release" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          commits_since_tag=$(git rev-list --count "${latest_tag}..${main_ref}")
+          changed_files="$(git diff --name-only "$latest_tag" "$main_ref")"
 
-          if [[ "$commits_since_tag" -gt 0 ]]; then
-            echo "has_new_commits=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "has_new_commits=false" >> "$GITHUB_OUTPUT"
-          fi
+          has_new_commits=false
+          while IFS= read -r file; do
+            case "$file" in
+              skills/*|agents/*|scripts/generate_catalog.py|scripts/generate_agent_catalog.py|scripts/generate_pages.py|github-pages/index.html|README.md|.github/upstream-watch*.json|.github/workflows/publish-catalog.yml|.github/workflows/publish-pages.yml)
+                has_new_commits=true
+                break
+                ;;
+            esac
+          done <<< "$changed_files"
+
+          echo "has_new_commits=$has_new_commits" >> "$GITHUB_OUTPUT"
+          echo "latest_tag=$latest_tag" >> "$GITHUB_OUTPUT"
+          echo "override=false" >> "$GITHUB_OUTPUT"
+          echo "reason=$([ "$has_new_commits" = "true" ] && echo relevant_changes || echo no_relevant_changes)" >> "$GITHUB_OUTPUT"
+          echo "Changed files since last catalog tag:"
+          echo "$changed_files"
 
           echo "latest_tag=$latest_tag" >> "$GITHUB_OUTPUT"
           echo "override=false" >> "$GITHUB_OUTPUT"

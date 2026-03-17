@@ -2,16 +2,14 @@ name: Publish Dotnet Tool
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - ".github/workflows/publish-tool.yml"
-      - "README.md"
-      - "dotnet-skills.slnx"
-      - "scripts/generate_catalog.py"
-      - "scripts/smoke_test_tool.sh"
-      - "tools/ManagedCode.DotnetSkills/**"
+    inputs:
+      force_publish:
+        description: "Force full tool publish even without tool-relevant changes."
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    - cron: "0 4 * * *"
 
 permissions:
   contents: read
@@ -31,6 +29,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -42,7 +42,55 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
+      - name: Check for tool-relevant changes
+        id: changes
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.force_publish }}" == "true" ]]; then
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            echo "reason=manual_force" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            echo "reason=manual_dispatch" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          since="$(date -u -d '1 day ago' '+%Y-%m-%dT%H:%M:%SZ')"
+          changed_files=$(git log --since="$since" --name-only --pretty=format: --first-parent origin/main | sed '/^$/d')
+
+          has_changes=false
+          while IFS= read -r file; do
+            if [[ "$file" == tools/ManagedCode.DotnetSkills/* \
+              || "$file" == scripts/generate_catalog.py \
+              || "$file" == scripts/smoke_test_tool.sh \
+              || "$file" == dotnet-skills.slnx \
+              || "$file" == README.md \
+              || "$file" == .github/workflows/publish-tool.yml ]]; then
+              has_changes=true
+              break
+            fi
+          done <<< "$changed_files"
+
+          echo "has_changes=$has_changes" >> "$GITHUB_OUTPUT"
+          echo "reason=scheduled_check" >> "$GITHUB_OUTPUT"
+
+          if [[ "$has_changes" == "true" ]]; then
+            echo "Tool changes detected in last 24h:"
+            echo "$changed_files"
+          else
+            echo "No tool-relevant changes in last 24h."
+          fi
+
+      - name: No tool changes, skip publish
+        if: steps.changes.outputs.has_changes != 'true'
+        run: |
+          echo "Skipping dotnet tool publish: no relevant changes detected in last 24h (reason=${{ steps.changes.outputs.reason }})."
+
       - name: Determine package version
+        if: steps.changes.outputs.has_changes == 'true'
         id: version
         shell: bash
         run: |
@@ -64,21 +112,27 @@ jobs:
           echo "package_version=$version" >> "$GITHUB_OUTPUT"
 
       - name: Generate catalog outputs in CI
+        if: steps.changes.outputs.has_changes == 'true'
         run: python3 scripts/generate_catalog.py
 
       - name: Build dotnet tool
+        if: steps.changes.outputs.has_changes == 'true'
         run: dotnet build "${{ env.SOLUTION_FILE }}" -c Release -p:ContinuousIntegrationBuild=true -p:Version="${{ steps.version.outputs.package_version }}"
 
       - name: Run dotnet tests
+        if: steps.changes.outputs.has_changes == 'true'
         run: dotnet test "${{ env.SOLUTION_FILE }}" -c Release --no-build -p:ContinuousIntegrationBuild=true -p:Version="${{ steps.version.outputs.package_version }}"
 
       - name: Pack dotnet tool
+        if: steps.changes.outputs.has_changes == 'true'
         run: dotnet pack "${{ env.SOLUTION_FILE }}" -c Release --no-build -p:ContinuousIntegrationBuild=true -p:Version="${{ steps.version.outputs.package_version }}"
 
       - name: Smoke test installable tool
+        if: steps.changes.outputs.has_changes == 'true'
         run: bash scripts/smoke_test_tool.sh artifacts/nuget
 
       - name: Upload NuGet package artifact
+        if: steps.changes.outputs.has_changes == 'true'
         uses: actions/upload-artifact@v6
         with:
           name: managedcode-dotnet-skills-${{ steps.version.outputs.package_version }}
@@ -86,6 +140,7 @@ jobs:
           if-no-files-found: error
 
       - name: Publish to NuGet
+        if: steps.changes.outputs.has_changes == 'true'
         shell: bash
         run: |
           set -euo pipefail
