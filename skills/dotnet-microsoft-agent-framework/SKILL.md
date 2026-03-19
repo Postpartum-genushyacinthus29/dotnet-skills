@@ -1,6 +1,6 @@
 ---
 name: dotnet-microsoft-agent-framework
-version: "1.5.1"
+version: "1.6.0"
 category: "AI"
 description: "Build .NET AI agents and multi-agent workflows with Microsoft Agent Framework using the right agent type, threads, tools, workflows, hosting protocols, and enterprise guardrails."
 compatibility: "Requires preview-era Microsoft Agent Framework packages and a .NET application that truly needs agentic or workflow orchestration."
@@ -10,7 +10,7 @@ compatibility: "Requires preview-era Microsoft Agent Framework packages and a .N
 
 ## Trigger On
 
-- building or reviewing `.NET` code that uses `Microsoft.Agents.*`, `Microsoft.Extensions.AI`, `AIAgent`, `AgentThread`, or Agent Framework hosting packages
+- building or reviewing `.NET` code that uses `Microsoft.Agents.*`, `Microsoft.Extensions.AI`, `AIAgent`, `AgentThread`, `AgentSession`, or Agent Framework hosting packages
 - choosing between `ChatClientAgent`, Responses agents, hosted agents, custom agents, Anthropic agents, workflows, or durable agents
 - adding tools, MCP, A2A, OpenAI-compatible hosting, AG-UI, DevUI, background responses, or OpenTelemetry
 - migrating from Semantic Kernel agent APIs or aligning AutoGen-style multi-agent patterns to Agent Framework
@@ -21,7 +21,7 @@ compatibility: "Requires preview-era Microsoft Agent Framework packages and a .N
 1. Decide whether the problem should stay deterministic. If plain code or a typed workflow without LLM autonomy is enough, do that instead of adding an agent.
 2. Choose the execution shape first: single `AIAgent`, explicit `Workflow`, Azure Functions durable agent, ASP.NET Core hosted agent, AG-UI remote UI, or DevUI local debugging.
 3. Choose the agent type and provider intentionally. Prefer the simplest agent that satisfies the threading, tooling, and hosting requirements.
-4. Keep agents stateless and keep conversation or long-lived state in `AgentThread`. Treat serialized threads as opaque provider-specific state.
+4. Keep agents stateless and keep conversation or long-lived state in provider-owned session objects. Most persistence guidance still centers on `AgentThread`, while newer middleware and background-response examples may surface `AgentSession`. Treat both as opaque provider-specific state.
 5. Add only the tools and middleware that the scenario needs. Narrow the tool surface, require approval for side effects, and treat MCP, A2A, and third-party services as trust boundaries.
 6. For workflows, model executors, edges, request-response ports, checkpoints, shared state, and human-in-the-loop explicitly rather than hiding control flow in prompts.
 7. Prefer Responses-based protocols for new remote/OpenAI-compatible integrations unless you specifically need Chat Completions compatibility.
@@ -51,13 +51,14 @@ flowchart LR
 ## Core Knowledge
 
 - `AIAgent` is the common runtime abstraction. It should stay mostly stateless.
-- `AgentThread` holds conversation identity and long-lived interaction state. Treat serialized thread payloads as opaque provider-owned data.
+- `AgentThread` still anchors most persisted conversation guidance, but some newer runtime surfaces now pass `AgentSession` instead. Treat either state object as opaque provider-owned data and verify exact callback signatures against the current official page.
 - `AgentResponse` and `AgentResponseUpdate` are not just text containers. They can include tool calls, tool results, structured output, reasoning-like updates, and response metadata.
 - `ChatClientAgent` is the safest default when you already have an `IChatClient` and do not need a hosted-agent service.
 - `Workflow` is an explicit graph of executors and edges. Use it when the control flow must stay inspectable, typed, resumable, or human-steerable.
 - `AgentWorkflowBuilder` provides high-level factory methods such as `BuildConcurrent` for common agent orchestration patterns. Use it when you need concurrent or sequential agent pipelines without writing custom executor classes.
 - Hosting layers such as OpenAI-compatible HTTP, A2A, and AG-UI are adapters over your in-process agent or workflow. They do not replace the core architecture choice.
 - Durable agents are a hosting and persistence decision for Azure Functions. They are not the default answer for ordinary app-level orchestration.
+- Current Learn docs now consolidate middleware under `agents/middleware` and tools under `agents/tools/*`; older tutorial URLs can redirect to the same canonical page, so prefer the canonical path when exact signatures or headings matter.
 
 ## Decision Cheatsheet
 
@@ -95,7 +96,7 @@ flowchart LR
 
 - the scenario really needs agentic behavior and is not better served by deterministic code
 - the selected agent type matches the provider, thread model, and tool model
-- `AgentThread` lifecycle, serialization, and compatibility boundaries are explicit
+- `AgentThread` or `AgentSession` lifecycle, serialization, and compatibility boundaries are explicit for the chosen provider surface
 - tool approval, MCP headers, and third-party trust boundaries are handled safely
 - workflows define checkpoints, request-response, shared state, and HITL paths deliberately
 - DevUI is treated as a development sample, not a production surface

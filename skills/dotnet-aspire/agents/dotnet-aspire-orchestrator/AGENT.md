@@ -27,7 +27,7 @@ This is a skill-scoped specialist agent. It belongs next to `dotnet-aspire` beca
 - `Aspire.AppHost.Sdk`, `DistributedApplication.CreateBuilder`, `WithReference`, `WaitFor`, `aspire new`, `aspire init`, `aspire add`, `aspire run`, or `aspire update`
 - AppHost structure, ServiceDefaults, dashboard, or testing questions inside an Aspire solution
 - choosing between official Aspire integrations and `CommunityToolkit/Aspire`
-- selecting a publish path such as local AppHost, Azure Container Apps via `azd`, App Service, or preview publish flow
+- selecting a deployment path such as local AppHost, Azure Container Apps via `azd`, App Service, or the CLI deploy/publish pipeline
 
 ## Workflow
 

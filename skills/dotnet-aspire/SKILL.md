@@ -1,6 +1,6 @@
 ---
 name: dotnet-aspire
-version: "1.1.0"
+version: "1.2.0"
 category: "Cloud"
 description: "Build, upgrade, and operate .NET Aspire application hosts with current CLI, AppHost, ServiceDefaults, integrations, dashboard, testing, and Azure deployment patterns for distributed apps."
 compatibility: "Best for current Aspire 13-era tooling on .NET 10; use version-aware upgrade guidance for older 8.x or 9.x Aspire solutions."
@@ -42,13 +42,13 @@ flowchart LR
   H --> I
   I --> J{"Publishing now?"}
   J -->|No| K["Run locally with `aspire run` or the AppHost project"]
-  J -->|Yes| L["Choose `azd`, App Service, or preview publish flow"]
+  J -->|Yes| L["Choose `azd`, App Service, or the CLI deploy/publish pipeline"]
 ```
 
 ## Current Guidance
 
 - AppHost shape: prefer current SDK-style AppHost projects using `Aspire.AppHost.Sdk/<version>` or a file-based AppHost when that repo intentionally uses the single-file model. Recognize both as valid current patterns.
-- CLI entry points: use `aspire new` for starter projects, `aspire init` to add Aspire support to an existing solution or create a single-file AppHost, `aspire add` to add integrations or starter pieces, `aspire run` for local orchestration, and `aspire update` for version-aware upgrades. `aspire publish` exists, but it is still preview.
+- CLI entry points: use `aspire new` for starter projects, `aspire init` to add Aspire support to an existing solution or create a single-file AppHost, `aspire add` to add integrations or starter pieces, `aspire run` for local orchestration, `aspire deploy` for the current CLI deploy pipeline, and `aspire update` for version-aware upgrades. `aspire publish` still exists for explicit artifact-generation flows and remains preview-sensitive.
 - App model wiring: use `WithReference(...)` for dependency and configuration flow, and `WaitFor(...)` for startup ordering. Use `WithExternalHttpEndpoints()` only when the resource truly needs an externally reachable endpoint for the chosen runtime or publish target.
 - ServiceDefaults boundaries: `AddServiceDefaults()` should stay focused on OpenTelemetry, health endpoints, service discovery, `HttpClient` resilience, and related cross-cutting infrastructure.
 - Testing model: prefer Aspire closed-box testing when you need to run the distributed application as a system. If the goal is in-memory or mocked component tests, stay in the underlying service's normal test stack instead.
@@ -99,7 +99,7 @@ flowchart LR
 - consuming apps resolve endpoints and connection strings without hardcoded values
 - `ServiceDefaults` contains only cross-cutting infrastructure concerns
 - dashboard, health checks, logs, and traces reflect the expected resource graph
-- testing and deployment guidance matches the chosen runtime: local AppHost, standalone dashboard, ACA/App Service, or preview publish flow
+- testing and deployment guidance matches the chosen runtime: local AppHost, standalone dashboard, ACA/App Service, or the CLI deploy/publish pipeline
 
 ## References
 

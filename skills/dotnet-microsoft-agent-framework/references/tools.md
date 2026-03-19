@@ -1,5 +1,14 @@
 # Tools and Tool Approval
 
+## Canonical Docs Shift
+
+Current Microsoft Learn docs now group tool guidance under `agents/tools/*`.
+
+- the old `tutorials/agents/function-tools` URL resolves to the canonical Function Tools article
+- the old `tutorials/agents/agent-as-function-tool` URL is now effectively a compatibility alias instead of a distinct step-by-step tutorial
+
+Use the current Function Tools page for runnable setup details and treat agent-as-tool as a composition pattern inside the broader tools surface.
+
 ## Tool Support Depends On The Concrete Agent
 
 `AIAgent` itself does not promise a universal tool model. Tooling behavior comes from the actual agent type and the underlying service.
@@ -73,6 +82,15 @@ AgentResponse response = await agent.RunAsync(
     options: options);
 ```
 
+## Runtime-Only Context And Declaration-Only Tools
+
+The latest docs add two patterns that are easy to miss if you only remember the older tutorial snapshot:
+
+- use `FunctionInvocationContext` for runtime-only values such as per-run user IDs, request metadata, or session data that should not appear in the model-visible tool schema
+- use declaration-only tools only when the real implementation lives outside Agent Framework, such as a UI, external process, or another runtime that will provide the tool result later
+
+If several tools share hidden implementation state or service clients, prefer bound methods on a class over inventing extra model-visible parameters.
+
 ## Service-Provided Tools
 
 Hosted or provider-native tools are backend-specific.
@@ -104,7 +122,7 @@ If the backend does not offer built-in approvals:
 
 ## Agent As Tool
 
-Use agent-as-tool when one agent needs a bounded specialist capability without promoting the relationship to a full workflow.
+Use agent-as-tool when one agent needs a bounded specialist capability without promoting the relationship to a full workflow. The old standalone tutorial URL now redirects into the broader tools surface, but the composition pattern is still valid.
 
 ```csharp
 AIAgent weatherAgent = chatClient.AsAIAgent(

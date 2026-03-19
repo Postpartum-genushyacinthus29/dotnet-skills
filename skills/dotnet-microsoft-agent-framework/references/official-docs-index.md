@@ -27,7 +27,7 @@ The local snapshot lives under `references/official-docs/`.
 - Agent types: `official-docs/user-guide/agents/agent-types/index.md`
 - Running agents and conversations: `official-docs/user-guide/agents/running-agents.md`
 - Tools: `official-docs/user-guide/agents/agent-tools.md`
-- Memory and RAG: `official-docs/user-guide/agents/agent-memory.md` and `official-docs/user-guide/agents/agent-rag.md`
+- Middleware, memory, and RAG: `official-docs/user-guide/agents/agent-middleware.md`, `official-docs/user-guide/agents/agent-memory.md`, and `official-docs/user-guide/agents/agent-rag.md`
 - MCP: `official-docs/user-guide/model-context-protocol/index.md`
 - Workflow overview: `official-docs/user-guide/workflows/overview.md`
 - Workflow core concepts: `official-docs/user-guide/workflows/core-concepts/overview.md`
@@ -54,7 +54,7 @@ The local snapshot lives under `references/official-docs/`.
 
 ### Tutorials / Agents
 
-- [`official-docs/tutorials/agents/agent-as-function-tool.md`](official-docs/tutorials/agents/agent-as-function-tool.md)
+- [`official-docs/tutorials/agents/agent-as-function-tool.md`](official-docs/tutorials/agents/agent-as-function-tool.md) — Redirect alias retained locally because the live Learn URL now resolves into the broader Function Tools surface
 - [`official-docs/tutorials/agents/agent-as-mcp-tool.md`](official-docs/tutorials/agents/agent-as-mcp-tool.md)
 - [`official-docs/tutorials/agents/create-and-run-durable-agent.md`](official-docs/tutorials/agents/create-and-run-durable-agent.md)
 - [`official-docs/tutorials/agents/enable-observability.md`](official-docs/tutorials/agents/enable-observability.md)
@@ -62,7 +62,7 @@ The local snapshot lives under `references/official-docs/`.
 - [`official-docs/tutorials/agents/function-tools.md`](official-docs/tutorials/agents/function-tools.md)
 - [`official-docs/tutorials/agents/images.md`](official-docs/tutorials/agents/images.md)
 - [`official-docs/tutorials/agents/memory.md`](official-docs/tutorials/agents/memory.md)
-- [`official-docs/tutorials/agents/middleware.md`](official-docs/tutorials/agents/middleware.md)
+- [`official-docs/tutorials/agents/middleware.md`](official-docs/tutorials/agents/middleware.md) — Redirect alias retained locally because the live Learn URL now resolves to the canonical middleware page
 - [`official-docs/tutorials/agents/multi-turn-conversation.md`](official-docs/tutorials/agents/multi-turn-conversation.md)
 - [`official-docs/tutorials/agents/orchestrate-durable-agents.md`](official-docs/tutorials/agents/orchestrate-durable-agents.md)
 - [`official-docs/tutorials/agents/persisted-conversation.md`](official-docs/tutorials/agents/persisted-conversation.md)

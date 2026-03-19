@@ -5,11 +5,15 @@ zone_pivot_groups: programming-languages
 author: dmytrostruk
 ms.topic: reference
 ms.author: dmytrostruk
-ms.date: 09/29/2025
+ms.date: 03/17/2026
 ms.service: agent-framework
 ---
 
 # Agent Middleware
+
+> [!NOTE]
+> The live Learn page for this content now resolves to the canonical middleware article at `https://learn.microsoft.com/agent-framework/agents/middleware/`.
+> The old tutorial and user-guide URLs now land on the same page.
 
 Middleware in Agent Framework provides a powerful way to intercept, modify, and enhance agent interactions at various stages of execution. You can use middleware to implement cross-cutting concerns such as logging, security validation, error handling, and result transformation without modifying your core agent or function logic.
 
@@ -43,7 +47,7 @@ var middlewareEnabledAgent = originalAgent
 `IChatClient` middleware can be registered on an `IChatClient` before it is used with a `ChatClientAgent`, by using the chat client builder pattern.
 
 ```csharp
-var chatClient = new AzureOpenAIClient(new Uri("https://<myresource>.openai.azure.com"), new AzureCliCredential())
+var chatClient = new AzureOpenAIClient(new Uri("https://<myresource>.openai.azure.com"), new DefaultAzureCredential())
     .GetChatClient(deploymentName)
     .AsIChatClient();
 
@@ -55,11 +59,15 @@ var middlewareEnabledChatClient = chatClient
 var agent = new ChatClientAgent(middlewareEnabledChatClient, instructions: "You are a helpful assistant.");
 ```
 
+> [!WARNING]
+> `DefaultAzureCredential` is convenient for development but requires careful consideration in production.
+> Prefer a specific credential such as `ManagedIdentityCredential` when the hosting environment is known.
+
 `IChatClient` middleware can also be registered using a factory method when constructing
  an agent via one of the helper methods on SDK clients.
 
 ```csharp
-var agent = new AzureOpenAIClient(new Uri(endpoint), new AzureCliCredential())
+var agent = new AzureOpenAIClient(new Uri(endpoint), new DefaultAzureCredential())
     .GetChatClient(deploymentName)
     .AsAIAgent("You are a helpful assistant.", clientFactory: (chatClient) => chatClient
         .AsBuilder()
@@ -74,13 +82,13 @@ Here is an example of agent run middleware, that can inspect and/or modify the i
 ```csharp
 async Task<AgentResponse> CustomAgentRunMiddleware(
     IEnumerable<ChatMessage> messages,
-    AgentThread? thread,
+    AgentSession? session,
     AgentRunOptions? options,
     AIAgent innerAgent,
     CancellationToken cancellationToken)
 {
     Console.WriteLine(messages.Count());
-    var response = await innerAgent.RunAsync(messages, thread, options, cancellationToken).ConfigureAwait(false);
+    var response = await innerAgent.RunAsync(messages, session, options, cancellationToken).ConfigureAwait(false);
     Console.WriteLine(response.Messages.Count);
     return response;
 }
@@ -93,14 +101,14 @@ Here is an example of agent run streaming middleware, that can inspect and/or mo
 ```csharp
     async IAsyncEnumerable<AgentResponseUpdate> CustomAgentRunStreamingMiddleware(
     IEnumerable<ChatMessage> messages,
-    AgentThread? thread,
+    AgentSession? session,
     AgentRunOptions? options,
     AIAgent innerAgent,
     [EnumeratorCancellation] CancellationToken cancellationToken)
 {
     Console.WriteLine(messages.Count());
     List<AgentResponseUpdate> updates = [];
-    await foreach (var update in innerAgent.RunStreamingAsync(messages, thread, options, cancellationToken))
+    await foreach (var update in innerAgent.RunStreamingAsync(messages, session, options, cancellationToken))
     {
         updates.Add(update);
         yield return update;
@@ -161,6 +169,12 @@ async Task<ChatResponse> CustomChatClientMiddleware(
 
 > [!NOTE]
 > For more information about `IChatClient` middleware, see [Custom IChatClient middleware](/dotnet/ai/microsoft-extensions-ai#custom-ichatclient-middleware).
+
+## Current C#-specific notes from the latest page
+
+- `Use(sharedFunc: ...)` is now called out explicitly for input-only inspection that should not block streaming.
+- Current middleware examples use `AgentSession? session` in run callbacks; do not assume middleware callback types always mirror your persistence API surface.
+- Function-calling middleware still warns that `FunctionInvocationContext.Terminate` can leave chat history inconsistent if you short-circuit the loop.
 
 ::: zone-end
 ::: zone pivot="programming-language-python"

@@ -1,6 +1,6 @@
 ---
 name: agent-framework-router
-description: Microsoft Agent Framework routing agent for agent-vs-workflow decisions, agent types, AgentThread state, tools, workflows, hosting protocols, durable agents, and migration from Semantic Kernel or AutoGen. Use when the repo is already clearly on Microsoft Agent Framework and the remaining ambiguity is inside framework-specific design choices.
+description: Microsoft Agent Framework routing agent for agent-vs-workflow decisions, agent types, AgentThread or AgentSession state, tools, workflows, hosting protocols, durable agents, and migration from Semantic Kernel or AutoGen. Use when the repo is already clearly on Microsoft Agent Framework and the remaining ambiguity is inside framework-specific design choices.
 tools: Read, Edit, Glob, Grep, Bash
 model: inherit
 skills:
@@ -22,7 +22,7 @@ This is a skill-scoped agent. It lives under `skills/dotnet-microsoft-agent-fram
 
 ## Trigger On
 
-- the repo already references `Microsoft.Agents.*`, `AIAgent`, `AgentThread`, `Microsoft.Agents.AI.Workflows`, or Agent Framework hosting packages
+- the repo already references `Microsoft.Agents.*`, `AIAgent`, `AgentThread`, `AgentSession`, `Microsoft.Agents.AI.Workflows`, or Agent Framework hosting packages
 - the task is primarily about agent-vs-workflow choice, provider selection, thread/state handling, tools, middleware, hosting, AG-UI, A2A, DevUI, or durable-agent execution
 - the ambiguity is inside Microsoft Agent Framework design choices rather than across unrelated `.NET` stacks
 
@@ -32,7 +32,7 @@ This is a skill-scoped agent. It lives under `skills/dotnet-microsoft-agent-fram
 2. Classify the dominant framework concern:
    - architecture choice: deterministic code vs agent vs workflow
    - provider and agent type selection
-   - `AgentThread`, chat history, and state boundaries
+   - `AgentThread`, `AgentSession`, chat history, and state boundaries
    - tools, middleware, approvals, and MCP
    - workflows, checkpoints, request-response, and HITL
    - hosting, protocol adapters, and remote interoperability
@@ -51,7 +51,7 @@ This is a skill-scoped agent. It lives under `skills/dotnet-microsoft-agent-fram
 | Signal | Route |
 |-------|-------|
 | `AIAgent` vs `Workflow`, agent count, orchestration shape | `dotnet-microsoft-agent-framework` |
-| `AgentThread`, chat history stores, serialized sessions, reducers, context providers | `dotnet-microsoft-agent-framework` |
+| `AgentThread`, `AgentSession`, chat history stores, serialized sessions, reducers, context providers | `dotnet-microsoft-agent-framework` |
 | Function tools, tool approvals, agent-as-tool, hosted tools | `dotnet-microsoft-agent-framework` |
 | MCP tools, MCP trust boundaries, exposing agents through MCP | `dotnet-microsoft-agent-framework` + `dotnet-mcp` |
 | `IChatClient`, provider abstraction, OpenAI vs Azure OpenAI vs local chat clients | `dotnet-microsoft-agent-framework` + `dotnet-microsoft-extensions-ai` |

@@ -50,7 +50,7 @@
     },
     {
       "id": "aspire-docs",
-      "source": "https://learn.microsoft.com/dotnet/aspire/",
+      "source": "https://aspire.dev/",
       "skills": [
         "dotnet-aspire"
       ]

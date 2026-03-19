@@ -1,5 +1,14 @@
 # Middleware
 
+## Canonical Docs Shift
+
+Current Microsoft Learn docs now route middleware content through a single canonical page under `agents/middleware/`.
+
+- the old tutorial URL and the old user-guide URL now resolve to the same live page
+- newer examples on that page use `AgentSession? session` in run middleware callbacks even though broader persistence guidance still talks about `AgentThread`
+
+Treat the old paths as aliases and verify callback signatures against the current canonical article when exact code matters.
+
 ## Middleware Exists At Three Different Layers
 
 | Layer | What It Intercepts | Use It For | Do Not Use It For |
@@ -33,6 +42,8 @@ var guardedChatClient = chatClient
 
 Then the guarded client is wrapped in `ChatClientAgent`.
 
+The latest official C# examples also switched these middleware samples to `DefaultAzureCredential` and now add an explicit production warning about credential fallback chains. Do not copy that credential choice blindly into production code.
+
 ## Layer Selection Rules
 
 Use agent run middleware when the policy cares about:
@@ -48,6 +59,8 @@ Use function middleware when the policy cares about:
 - which arguments are being sent
 - whether the tool call should be blocked or approved
 - how the raw tool result is normalized
+
+Tool-only runtime values such as tenant IDs, correlation hints, or request provenance belong here or in related runtime-context hooks, not in model-visible tool parameters.
 
 Use `IChatClient` middleware when the policy cares about:
 
@@ -67,6 +80,7 @@ So the default rule is:
 
 - provide both `runFunc` and `runStreamingFunc`
 - or use the shared overload only for pre-run inspection that does not need to rewrite output
+- consider `Use(sharedFunc: ...)` when you only need input inspection and want to preserve streaming semantics
 
 ## Function Middleware Is The Right Place For Tool Governance
 

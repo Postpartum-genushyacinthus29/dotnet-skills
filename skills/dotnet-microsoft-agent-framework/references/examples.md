@@ -19,12 +19,12 @@ Use this file when you need the smallest official proof that a pattern exists be
 | Persist and resume conversations | `tutorials/agents/persisted-conversation.md` | serialize and restore thread | Design storage and compatibility rules |
 | Store history outside memory | `tutorials/agents/third-party-chat-history-storage.md` | custom `ChatMessageStore` | enforce keying and reduction strategy |
 | Add memory augmentation | `tutorials/agents/memory.md` | `AIContextProvider` hooks | separate memory from raw chat history |
-| Add function tools | `tutorials/agents/function-tools.md` | direct tool registration | narrow contracts and approval rules |
+| Add function tools | `tutorials/agents/function-tools.md` | direct tool registration | narrow contracts, hide runtime-only values from the schema, and add approval rules |
 | Add approval to tools | `tutorials/agents/function-tools-approvals.md` | tool approval flow | decide whether approval belongs in middleware or workflows |
 | Structured output | `tutorials/agents/structured-output.md` | typed output shape | keep schema contracts explicit |
 | Images or multimodal input | `tutorials/agents/images.md` | non-text content path | verify backend multimodal support |
-| Add middleware | `tutorials/agents/middleware.md` | run/function/client interception | separate policy by layer |
-| Use an agent as a tool | `tutorials/agents/agent-as-function-tool.md` | bounded delegation | escalate to workflows if control flow matters |
+| Add middleware | `user-guide/agents/agent-middleware.md` | run/function/client interception with the current `AgentSession` callback signatures | separate policy by layer |
+| Use an agent as a tool | `tutorials/agents/agent-as-function-tool.md` | bounded delegation via the legacy alias page | escalate to workflows if control flow matters |
 | Expose an agent as an MCP tool | `tutorials/agents/agent-as-mcp-tool.md` | MCP-facing tool wrapper | use A2A if the remote thing should stay an agent |
 | Enable observability | `tutorials/agents/enable-observability.md` | tracing and instrumentation | add repo-specific correlation and policy spans |
 | Durable hosted agent | `tutorials/agents/create-and-run-durable-agent.md` | Azure Functions durable path | only keep it if durability is genuinely required |

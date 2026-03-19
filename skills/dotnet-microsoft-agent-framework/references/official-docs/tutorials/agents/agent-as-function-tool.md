@@ -1,152 +1,49 @@
 ---
 title: Using an agent as a function tool
-description: Learn how to use an agent as a function tool
+description: Legacy tutorial alias retained locally; the live Learn URL now resolves into the broader Function Tools surface
 zone_pivot_groups: programming-languages
 author: westey-m
 ms.topic: tutorial
 ms.author: westey
-ms.date: 09/24/2025
+ms.date: 03/17/2026
 ms.service: agent-framework
 ---
 
 # Using an agent as a function tool
 
+> [!NOTE]
+> The live Learn URL for this old tutorial now redirects to the canonical Function Tools article.
+> Keep this local file only as a compatibility alias for existing references inside the skill catalog.
+
 ::: zone pivot="programming-language-csharp"
 
-This tutorial shows you how to use an agent as a function tool, so that one agent can call another agent as a tool.
+Use `AIAgent.AsAIFunction()` when one agent needs a bounded specialist capability without escalating to a full workflow.
 
-## Prerequisites
+## Current guidance
 
-For prerequisites and installing NuGet packages, see the [Create and run a simple agent](./run-agent.md) step in this tutorial.
-
-## Create and use an agent as a function tool
-
-You can use an `AIAgent` as a function tool by calling `.AsAIFunction()` on the agent and providing it as a tool to another agent. This allows you to compose agents and build more advanced workflows.
-
-First, create a function tool as a C# method, and decorate it with descriptions if needed.
-This tool will be used by your agent that's exposed as a function.
+- keep the delegated behavior narrow and easy to reason about
+- keep the outer agent in control of retries, fallbacks, and policy
+- escalate to explicit workflows when control flow, approvals, or fan-out logic become important
 
 ```csharp
-using System.ComponentModel;
-
-[Description("Get the weather for a given location.")]
-static string GetWeather([Description("The location to get the weather for.")] string location)
-    => $"The weather in {location} is cloudy with a high of 15°C.";
+AIAgent coordinator = chatClient.AsAIAgent(
+    instructions: "Delegate weather questions when needed.",
+    tools: [weatherAgent.AsAIFunction()]);
 ```
 
-Create an `AIAgent` that uses the function tool.
+For current runnable examples, load:
 
-```csharp
-using System;
-using Azure.AI.OpenAI;
-using Azure.Identity;
-using Microsoft.Agents.AI;
-using Microsoft.Extensions.AI;
-using OpenAI;
-
-AIAgent weatherAgent = new AzureOpenAIClient(
-    new Uri("https://<myresource>.openai.azure.com"),
-    new AzureCliCredential())
-     .GetChatClient("gpt-4o-mini")
-     .AsAIAgent(
-        instructions: "You answer questions about the weather.",
-        name: "WeatherAgent",
-        description: "An agent that answers questions about the weather.",
-        tools: [AIFunctionFactory.Create(GetWeather)]);
-```
-
-Now, create a main agent and provide the `weatherAgent` as a function tool by calling `.AsAIFunction()` to convert `weatherAgent` to a function tool.
-
-```csharp
-AIAgent agent = new AzureOpenAIClient(
-    new Uri("https://<myresource>.openai.azure.com"),
-    new AzureCliCredential())
-     .GetChatClient("gpt-4o-mini")
-     .AsAIAgent(instructions: "You are a helpful assistant who responds in French.", tools: [weatherAgent.AsAIFunction()]);
-```
-
-Invoke the main agent as normal. It can now call the weather agent as a tool, and should respond in French.
-
-```csharp
-Console.WriteLine(await agent.RunAsync("What is the weather like in Amsterdam?"));
-```
+- `references/official-docs/tutorials/agents/function-tools.md`
+- `references/official-docs/user-guide/agents/agent-tools.md`
 
 ::: zone-end
 ::: zone pivot="programming-language-python"
 
-This tutorial shows you how to use an agent as a function tool, so that one agent can call another agent as a tool.
-
-## Prerequisites
-
-For prerequisites and installing packages, see the [Create and run a simple agent](./run-agent.md) step in this tutorial.
-
-## Create and use an agent as a function tool
-
-You can use a `ChatAgent` as a function tool by calling `.as_tool()` on the agent and providing it as a tool to another agent. This allows you to compose agents and build more advanced workflows.
-
-First, create a function tool that will be used by your agent that's exposed as a function.
-
-```python
-from typing import Annotated
-from pydantic import Field
-
-def get_weather(
-    location: Annotated[str, Field(description="The location to get the weather for.")],
-) -> str:
-    """Get the weather for a given location."""
-    return f"The weather in {location} is cloudy with a high of 15°C."
-```
-
-Create a `ChatAgent` that uses the function tool.
-
-```python
-from agent_framework.azure import AzureOpenAIChatClient
-from azure.identity import AzureCliCredential
-
-weather_agent = AzureOpenAIChatClient(credential=AzureCliCredential()).as_agent(
-    name="WeatherAgent",
-    description="An agent that answers questions about the weather.",
-    instructions="You answer questions about the weather.",
-    tools=get_weather
-)
-```
-
-Now, create a main agent and provide the `weather_agent` as a function tool by calling `.as_tool()` to convert `weather_agent` to a function tool.
-
-```python
-main_agent = AzureOpenAIChatClient(credential=AzureCliCredential()).as_agent(
-    instructions="You are a helpful assistant who responds in French.",
-    tools=weather_agent.as_tool()
-)
-```
-
-Invoke the main agent as normal. It can now call the weather agent as a tool, and should respond in French.
-
-```python
-result = await main_agent.run("What is the weather like in Amsterdam?")
-print(result.text)
-```
-
-You can also customize the tool name, description, and argument name when converting an agent to a tool:
-
-```python
-# Convert agent to tool with custom parameters
-weather_tool = weather_agent.as_tool(
-    name="WeatherLookup",
-    description="Look up weather information for any location",
-    arg_name="query",
-    arg_description="The weather query or location"
-)
-
-main_agent = AzureOpenAIChatClient(credential=AzureCliCredential()).as_agent(
-    instructions="You are a helpful assistant who responds in French.",
-    tools=weather_tool
-)
-```
+The live alias now resolves to the broader Function Tools article. Use the canonical live docs for current Python examples.
 
 ::: zone-end
 
 ## Next steps
 
-> [!div class="nextstepaction"]
-> [Exposing an agent as an MCP tool](./agent-as-mcp-tool.md)
+- Use `references/official-docs/tutorials/agents/agent-as-mcp-tool.md` when the delegated capability should surface as an MCP tool instead of a normal function tool.
+- Escalate to `references/workflows.md` when delegation becomes explicit orchestration instead of bounded tool composition.

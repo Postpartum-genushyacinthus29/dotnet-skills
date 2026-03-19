@@ -517,13 +517,6 @@
       ]
     },
     {
-      "id": "agent-framework-docs-tutorials-agents-agent-as-function-tool",
-      "source": "https://learn.microsoft.com/agent-framework/tutorials/agents/agent-as-function-tool",
-      "skills": [
-        "dotnet-microsoft-agent-framework"
-      ]
-    },
-    {
       "id": "agent-framework-docs-tutorials-agents-agent-as-mcp-tool",
       "source": "https://learn.microsoft.com/agent-framework/tutorials/agents/agent-as-mcp-tool",
       "skills": [
@@ -553,7 +546,7 @@
     },
     {
       "id": "agent-framework-docs-tutorials-agents-function-tools",
-      "source": "https://learn.microsoft.com/agent-framework/tutorials/agents/function-tools",
+      "source": "https://learn.microsoft.com/agent-framework/agents/tools/function-tools",
       "skills": [
         "dotnet-microsoft-agent-framework"
       ]
@@ -568,13 +561,6 @@
     {
       "id": "agent-framework-docs-tutorials-agents-memory",
       "source": "https://learn.microsoft.com/agent-framework/tutorials/agents/memory",
-      "skills": [
-        "dotnet-microsoft-agent-framework"
-      ]
-    },
-    {
-      "id": "agent-framework-docs-tutorials-agents-middleware",
-      "source": "https://learn.microsoft.com/agent-framework/tutorials/agents/middleware",
       "skills": [
         "dotnet-microsoft-agent-framework"
       ]
@@ -707,7 +693,7 @@
     },
     {
       "id": "agent-framework-docs-user-guide-agents-agent-middleware",
-      "source": "https://learn.microsoft.com/agent-framework/user-guide/agents/agent-middleware",
+      "source": "https://learn.microsoft.com/agent-framework/agents/middleware/",
       "skills": [
         "dotnet-microsoft-agent-framework"
       ]

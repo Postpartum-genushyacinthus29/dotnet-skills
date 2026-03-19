@@ -5,11 +5,15 @@ zone_pivot_groups: programming-languages
 author: markwallace
 ms.topic: reference
 ms.author: markwallace
-ms.date: 09/24/2025
+ms.date: 03/17/2026
 ms.service: agent-framework
 ---
 
 # Agent Tools
+
+> [!NOTE]
+> The live Learn tools surface now routes through `https://learn.microsoft.com/agent-framework/agents/tools/overview`.
+> Current live docs also add a provider-support matrix and fold agent-as-tool composition into that broader tools overview.
 
 Tooling support can vary considerably between different agent types. Some agents might allow developers to customize the agent at construction time by providing external function tools or by choosing to activate specific built-in tools that are supported by the agent. On the other hand, some custom agents might support no customization via providing external or activating built-in tools, if they already provide defined features that shouldn't be changed.
 

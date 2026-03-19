@@ -5,11 +5,15 @@ zone_pivot_groups: programming-languages
 author: westey-m
 ms.topic: tutorial
 ms.author: westey
-ms.date: 09/15/2025
+ms.date: 03/17/2026
 ms.service: agent-framework
 ---
 
 # Using function tools with an agent
+
+> [!NOTE]
+> The live Learn page for this legacy tutorial path now resolves to the canonical tools article at `https://learn.microsoft.com/agent-framework/agents/tools/function-tools`.
+> This local file keeps the historical path so existing references inside the skill catalog remain stable.
 
 This tutorial step shows you how to use function tools with an agent, where the agent is built on the Azure OpenAI Chat Completion service.
 
@@ -52,16 +56,29 @@ using OpenAI;
 
 AIAgent agent = new AzureOpenAIClient(
     new Uri("https://<myresource>.openai.azure.com"),
-    new AzureCliCredential())
+    new DefaultAzureCredential())
      .GetChatClient("gpt-4o-mini")
      .AsAIAgent(instructions: "You are a helpful assistant", tools: [AIFunctionFactory.Create(GetWeather)]);
 ```
+
+> [!WARNING]
+> `DefaultAzureCredential` is convenient for development but requires careful consideration in production.
+> Prefer a specific credential such as `ManagedIdentityCredential` when the hosting environment is known.
 
 Now you can just run the agent as normal, and the agent will be able to call the `GetWeather` function tool when needed.
 
 ```csharp
 Console.WriteLine(await agent.RunAsync("What is the weather like in Amsterdam?"));
 ```
+
+> [!TIP]
+> See the [.NET samples](https://github.com/microsoft/agent-framework/tree/main/dotnet/samples) for complete runnable examples.
+
+## Current addenda from the latest canonical page
+
+- Use `FunctionInvocationContext` for runtime-only values that should stay out of the model-visible schema.
+- Use declaration-only tools only when the implementation lives outside Agent Framework and your app will supply the result later.
+- When multiple tools share service clients or mutable implementation state, group them behind bound methods on a class instead of exposing that state as model input.
 
 ::: zone-end
 ::: zone pivot="programming-language-python"
