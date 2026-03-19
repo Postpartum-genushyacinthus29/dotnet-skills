@@ -346,7 +346,7 @@ Rules:
 - The unified release workflow must run at `04:00` UTC, publish the NuGet tool, create/update the `catalog-v*` GitHub release, and deploy GitHub Pages in the same pipeline.
 - The unified release workflow should publish when `main` has new commits since the last `catalog-v*` release; manual dispatch may exist only as a fallback or backfill path, not as the primary workflow.
 - Remote skill content and the NuGet tool should be released from the same scheduled workflow, with `catalog-v*` release assets staying `dotnet-skills-manifest.json` and `dotnet-skills-catalog.zip`.
-- Automatic catalog versions should use the numeric calendar-plus-run format `<year>.<month>.<day>.<run>`; do not add letter prefixes such as `r` or `ci` in release tags or titles.
+- Automatic catalog versions should use the numeric calendar-plus-daily-index format `<year>.<month>.<day>.<daily-build-index>`, where the first release for a UTC day is `.0`, the second is `.1`, and so on. Do not add letter prefixes such as `r` or `ci` in release tags or titles.
 - The NuGet tool publish workflow must ignore `catalog-v*` releases so catalog content publishes never trigger package pushes by accident.
 - The tool should use the newest non-draft `catalog-v*` GitHub release by default and fall back to bundled content only when the remote catalog is unavailable.
 - The bare `dotnet skills` usage view is still a normal startup path and must surface the same automatic self-update notice as other startup commands, unless update checks are explicitly suppressed.

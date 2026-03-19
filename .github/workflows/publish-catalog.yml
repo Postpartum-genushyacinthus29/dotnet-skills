@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       catalog_version:
-        description: "Catalog version to publish, for example 1.0.0, 1.2.3-preview.1, or 2026.3.15.42"
+        description: "Catalog version to publish, for example 1.0.0, 1.2.3-preview.1, or 2026.3.15.0"
         required: false
         type: string
 
@@ -114,7 +114,23 @@ jobs:
             year="$(date -u +%Y)"
             month=$((10#$(date -u +%m)))
             day=$((10#$(date -u +%d)))
-            version="${year}.${month}.${day}.${GITHUB_RUN_NUMBER}"
+            today_pattern="${{ env.CATALOG_TAG_PREFIX }}${year}.${month}.${day}.*"
+            latest_today_tag=$(git tag --list "$today_pattern" --sort=-v:refname | head -n 1)
+
+            if [[ -z "$latest_today_tag" ]]; then
+              daily_build_index=0
+            else
+              latest_today_index="${latest_today_tag##*.}"
+
+              if [[ ! "$latest_today_index" =~ ^[0-9]+$ ]]; then
+                echo "Latest tag for today has a non-numeric daily build index: $latest_today_tag" >&2
+                exit 1
+              fi
+
+              daily_build_index=$((10#$latest_today_index + 1))
+            fi
+
+            version="${year}.${month}.${day}.${daily_build_index}"
           fi
 
           if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+([-.][0-9A-Za-z.-]+)?$ ]]; then

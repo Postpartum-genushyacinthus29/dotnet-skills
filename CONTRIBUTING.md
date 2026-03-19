@@ -265,7 +265,8 @@ The nightly release workflow also handles catalog and site publishing. It includ
 Rules:
 
 - catalog release tags must use `catalog-v<version>`
-- the automatic catalog version format is `<year>.<month>.<day>.<run>`, for example `2026.3.15.42`
+- the automatic catalog version format is `<year>.<month>.<day>.<daily-build-index>`, for example `2026.3.15.0`
+- the daily build index is UTC-based: first release for that UTC date is `.0`, second is `.1`, and so on
 - the normal flow is automatic by schedule; do not treat manual dispatch as the primary release path
 - the workflow generates fresh catalog outputs in CI from `skills/*/SKILL.md`
 - the tool resolves the latest remote catalog from the newest non-draft `catalog-v*` GitHub release
