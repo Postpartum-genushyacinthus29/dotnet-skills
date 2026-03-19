@@ -25,8 +25,11 @@ CATEGORY_TABS_PLACEHOLDER = "<!-- CATEGORY_TABS_PLACEHOLDER -->"
 COPYRIGHT_YEAR_RANGE_PLACEHOLDER = "COPYRIGHT_YEAR_RANGE_PLACEHOLDER"
 SITE_URL_PLACEHOLDER = "SITE_URL_PLACEHOLDER"
 CATALOG_VERSION_PLACEHOLDER = "CATALOG_VERSION_PLACEHOLDER"
+RELEASE_TAG_PLACEHOLDER = "RELEASE_TAG_PLACEHOLDER"
+RELEASE_URL_PLACEHOLDER = "RELEASE_URL_PLACEHOLDER"
 COPYRIGHT_START_YEAR = 2024
 DEFAULT_SITE_URL = "https://managedcode.github.io/dotnet-skills/"
+DEFAULT_RELEASES_URL = "https://github.com/managedcode/dotnet-skills/releases/tag/"
 
 
 def escape_html(text: str) -> str:
@@ -153,6 +156,28 @@ def normalize_site_url(raw_url: str) -> str:
     return raw_url.rstrip("/") + "/"
 
 
+def resolve_release_version(catalog: dict) -> str:
+    """Resolve the published release version for the public site."""
+    return (
+        os.environ.get("DOTNET_SKILLS_RELEASE_VERSION")
+        or catalog.get("version")
+        or "1.0.0"
+    )
+
+
+def resolve_release_tag(release_version: str) -> str:
+    """Resolve the published release tag for the public site."""
+    return os.environ.get("DOTNET_SKILLS_RELEASE_TAG") or f"catalog-v{release_version}"
+
+
+def resolve_release_url(release_tag: str) -> str:
+    """Resolve the published release URL for the public site."""
+    return (
+        os.environ.get("DOTNET_SKILLS_RELEASE_URL")
+        or f"{DEFAULT_RELEASES_URL}{release_tag}"
+    ).strip()
+
+
 def get_git_last_modified(path: str) -> str:
     """Get the last commit date for a file or directory from git."""
     try:
@@ -255,8 +280,12 @@ def main() -> int:
     output_html = output_html.replace(CATEGORY_TABS_PLACEHOLDER, category_tabs_html)
     output_html = output_html.replace(COPYRIGHT_YEAR_RANGE_PLACEHOLDER, render_copyright_year_range())
     output_html = output_html.replace(SITE_URL_PLACEHOLDER, site_url)
-    catalog_version = catalog.get("version", "1.0.0")
-    output_html = output_html.replace(CATALOG_VERSION_PLACEHOLDER, catalog_version)
+    release_version = resolve_release_version(catalog)
+    release_tag = resolve_release_tag(release_version)
+    release_url = resolve_release_url(release_tag)
+    output_html = output_html.replace(CATALOG_VERSION_PLACEHOLDER, escape_html(release_version))
+    output_html = output_html.replace(RELEASE_TAG_PLACEHOLDER, escape_html(release_tag))
+    output_html = output_html.replace(RELEASE_URL_PLACEHOLDER, escape_html(release_url))
 
     # Update counts
     output_html = output_html.replace(

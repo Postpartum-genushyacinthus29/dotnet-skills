@@ -957,6 +957,13 @@
       "source_url": "https://github.com/dotnet/aspnetcore/releases/tag/v9.0.14",
       "value": "v9.0.14"
     },
+    "asynkron-profiler-release": {
+      "human": "v0.1.25 (2026-01-13T21:20:43Z)",
+      "kind": "github_release",
+      "published_at": "2026-01-13T21:20:43Z",
+      "source_url": "https://github.com/asynkron/Asynkron.Profiler/releases/tag/v0.1.25",
+      "value": "v0.1.25"
+    },
     "azure-functions-dotnet-worker-release": {
       "human": "2.51.0 (2025-11-14T21:22:43Z)",
       "kind": "github_release",

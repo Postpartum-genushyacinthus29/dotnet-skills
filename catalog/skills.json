@@ -39,7 +39,7 @@
     {
       "name": "dotnet-aspire",
       "title": ".NET Aspire",
-      "version": "1.1.0",
+      "version": "1.3.0",
       "category": "Cloud",
       "description": "Build, upgrade, and operate .NET Aspire application hosts with current CLI, AppHost, ServiceDefaults, integrations, dashboard, testing, and Azure deployment patterns for distributed apps.",
       "compatibility": "Best for current Aspire 13-era tooling on .NET 10; use version-aware upgrade guidance for older 8.x or 9.x Aspire solutions.",
@@ -53,6 +53,15 @@
       "description": "Build, debug, modernize, or review ASP.NET Core applications with correct hosting, middleware, security, configuration, logging, and deployment patterns on current .NET.",
       "compatibility": "Requires an ASP.NET Core project or solution.",
       "path": "skills/dotnet-aspnet-core/"
+    },
+    {
+      "name": "dotnet-asynkron-profiler",
+      "title": "Asynkron.Profiler",
+      "version": "1.0.0",
+      "category": "Metrics",
+      "description": "Use the open-source free `Asynkron.Profiler` dotnet tool for CLI-first CPU, allocation, exception, contention, and heap profiling of .NET commands or existing trace artifacts.",
+      "compatibility": "Requires the `asynkron-profiler` dotnet tool plus `dotnet-trace` and `dotnet-gcdump`; upstream guidance currently targets .NET SDK 10.x.",
+      "path": "skills/dotnet-asynkron-profiler/"
     },
     {
       "name": "dotnet-azure-functions",
@@ -273,7 +282,7 @@
     {
       "name": "dotnet-microsoft-agent-framework",
       "title": "Microsoft Agent Framework",
-      "version": "1.5.1",
+      "version": "1.6.0",
       "category": "AI",
       "description": "Build .NET AI agents and multi-agent workflows with Microsoft Agent Framework using the right agent type, threads, tools, workflows, hosting protocols, and enterprise guardrails.",
       "compatibility": "Requires preview-era Microsoft Agent Framework packages and a .NET application that truly needs agentic or workflow orchestration.",
@@ -372,10 +381,10 @@
     {
       "name": "dotnet-orleans",
       "title": "Microsoft Orleans",
-      "version": "1.2.0",
+      "version": "2.1.0",
       "category": "Distributed",
-      "description": "Build or review distributed .NET applications with Orleans grains, silos, persistence, streaming, reminders, placement, testing, and cloud-native hosting.",
-      "compatibility": "Prefer current Orleans releases with `UseOrleans`, `IPersistentState<TState>`, `RegisterGrainTimer`, modern providers, and production-grade clustering.",
+      "description": "Build or review distributed .NET applications with Orleans grains, silos, persistence, streaming, reminders, placement, transactions, serialization, event sourcing, testing, and cloud-native hosting.",
+      "compatibility": "Prefer current Orleans releases (10.x / 9.x) with `UseOrleans`, `IPersistentState<TState>`, `RegisterGrainTimer`, `[GenerateSerializer]`, modern providers, and production-grade clustering.",
       "path": "skills/dotnet-orleans/"
     },
     {
@@ -489,9 +498,9 @@
     {
       "name": "dotnet-tunit",
       "title": "TUnit",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "category": "Testing",
-      "description": "Write, run, or repair .NET tests that use TUnit. Use when a repo uses `TUnit`, `[Test]`, `[Arguments]`, source-generated test projects, or Microsoft.Testing.Platform-based execution.",
+      "description": "Write, run, or repair .NET tests that use TUnit. Use when a repo uses `TUnit`, `TUnit.Playwright`, `[Test]`, `[Arguments]`, `ClassDataSource`, `SharedType.PerTestSession`, or Microsoft.Testing.Platform-based execution.",
       "compatibility": "Requires a .NET solution or project with TUnit packages; respects the repo's `AGENTS.md` commands first.",
       "path": "skills/dotnet-tunit/"
     },

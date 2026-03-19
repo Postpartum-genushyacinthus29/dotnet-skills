@@ -158,7 +158,7 @@ skills/<skill-name>/
 
 <!-- BEGIN GENERATED CATALOG -->
 
-This catalog currently contains **64** skills.
+This catalog currently contains **65** skills.
 
 ### Core
 
@@ -187,7 +187,7 @@ This catalog currently contains **64** skills.
 
 | Skill | Version | Description |
 |-------|---------|-------------|
-| [`dotnet-aspire`](skills/dotnet-aspire/) | `1.1.0` | Build, upgrade, and operate .NET Aspire application hosts with current CLI, AppHost, ServiceDefaults, integrations, dashboard, testing, and Azure deployment patterns for distributed apps. |
+| [`dotnet-aspire`](skills/dotnet-aspire/) | `1.3.0` | Build, upgrade, and operate .NET Aspire application hosts with current CLI, AppHost, ServiceDefaults, integrations, dashboard, testing, and Azure deployment patterns for distributed apps. |
 | [`dotnet-azure-functions`](skills/dotnet-azure-functions/) | `1.0.0` | Build, review, or migrate Azure Functions in .NET with correct execution model, isolated worker setup, bindings, DI, and Durable Functions patterns. |
 
 ### Distributed
@@ -196,7 +196,7 @@ This catalog currently contains **64** skills.
 |-------|---------|-------------|
 | [`dotnet-managedcode-orleans-graph`](skills/dotnet-managedcode-orleans-graph/) | `1.0.0` | Use ManagedCode.Orleans.Graph when a distributed .NET application models graph-oriented relationships or traversal logic on top of Orleans grains and graph-aware integration patterns. |
 | [`dotnet-managedcode-orleans-signalr`](skills/dotnet-managedcode-orleans-signalr/) | `1.0.0` | Use ManagedCode.Orleans.SignalR when a distributed .NET application needs Orleans-based coordination of SignalR real-time messaging, hub delivery, and grain-driven push flows. |
-| [`dotnet-orleans`](skills/dotnet-orleans/) | `1.2.0` | Build or review distributed .NET applications with Orleans grains, silos, persistence, streaming, reminders, placement, testing, and cloud-native hosting. |
+| [`dotnet-orleans`](skills/dotnet-orleans/) | `2.1.0` | Build or review distributed .NET applications with Orleans grains, silos, persistence, streaming, reminders, placement, transactions, serialization, event sourcing, testing, and cloud-native hosting. |
 | [`dotnet-worker-services`](skills/dotnet-worker-services/) | `1.0.0` | Build long-running .NET background services with `BackgroundService`, Generic Host, graceful shutdown, configuration, logging, and deployment patterns suited to workers and daemons. |
 
 ### Desktop
@@ -231,7 +231,7 @@ This catalog currently contains **64** skills.
 | Skill | Version | Description |
 |-------|---------|-------------|
 | [`dotnet-mcp`](skills/dotnet-mcp/) | `1.1.0` | Build or consume Model Context Protocol (MCP) servers and clients in .NET using the official MCP C# SDK, including stdio, Streamable HTTP, tools, prompts, resources, and capability negotiation. |
-| [`dotnet-microsoft-agent-framework`](skills/dotnet-microsoft-agent-framework/) | `1.5.1` | Build .NET AI agents and multi-agent workflows with Microsoft Agent Framework using the right agent type, threads, tools, workflows, hosting protocols, and enterprise guardrails. |
+| [`dotnet-microsoft-agent-framework`](skills/dotnet-microsoft-agent-framework/) | `1.6.0` | Build .NET AI agents and multi-agent workflows with Microsoft Agent Framework using the right agent type, threads, tools, workflows, hosting protocols, and enterprise guardrails. |
 | [`dotnet-microsoft-extensions-ai`](skills/dotnet-microsoft-extensions-ai/) | `1.2.1` | Build provider-agnostic .NET AI integrations with `Microsoft.Extensions.AI`, `IChatClient`, embeddings, middleware, structured output, vector search, and evaluation. |
 | [`dotnet-mixed-reality`](skills/dotnet-mixed-reality/) | `1.0.0` | Work on C# and .NET-adjacent mixed-reality solutions around HoloLens, MRTK, OpenXR, Azure services, and integration boundaries where .NET participates in the stack. |
 | [`dotnet-mlnet`](skills/dotnet-mlnet/) | `1.0.0` | Use ML.NET to train, evaluate, or integrate machine-learning models into .NET applications with realistic data preparation, inference, and deployment expectations. |
@@ -254,7 +254,7 @@ This catalog currently contains **64** skills.
 | [`dotnet-nunit`](skills/dotnet-nunit/) | `1.0.0` | Write, run, or repair .NET tests that use NUnit. Use when a repo uses `NUnit`, `[Test]`, `[TestCase]`, `[TestFixture]`, or NUnit3TestAdapter for VSTest or Microsoft.Testing.Platform execution. |
 | [`dotnet-reportgenerator`](skills/dotnet-reportgenerator/) | `1.0.0` | Use the open-source free `ReportGenerator` tool for turning .NET coverage outputs into HTML, Markdown, Cobertura, badges, and merged reports. Use when raw coverage files are not readable enough for CI or human review. |
 | [`dotnet-stryker`](skills/dotnet-stryker/) | `1.0.0` | Use the open-source free `Stryker.NET` mutation testing tool for .NET. Use when a repo needs to measure whether tests actually catch faults, especially in critical libraries or domains. |
-| [`dotnet-tunit`](skills/dotnet-tunit/) | `1.0.0` | Write, run, or repair .NET tests that use TUnit. Use when a repo uses `TUnit`, `[Test]`, `[Arguments]`, source-generated test projects, or Microsoft.Testing.Platform-based execution. |
+| [`dotnet-tunit`](skills/dotnet-tunit/) | `1.1.0` | Write, run, or repair .NET tests that use TUnit. Use when a repo uses `TUnit`, `TUnit.Playwright`, `[Test]`, `[Arguments]`, `ClassDataSource`, `SharedType.PerTestSession`, or Microsoft.Testing.Platform-based execution. |
 | [`dotnet-xunit`](skills/dotnet-xunit/) | `1.0.0` | Write, run, or repair .NET tests that use xUnit. Use when a repo uses `xunit`, `xunit.v3`, `[Fact]`, `[Theory]`, or `xunit.runner.visualstudio`, and you need the right CLI, package, and runner guidance for xUnit on VSTest or Microsoft.Testing.Platform. |
 
 ### Code Quality
@@ -283,6 +283,7 @@ This catalog currently contains **64** skills.
 
 | Skill | Version | Description |
 |-------|---------|-------------|
+| [`dotnet-asynkron-profiler`](skills/dotnet-asynkron-profiler/) | `1.0.0` | Use the open-source free `Asynkron.Profiler` dotnet tool for CLI-first CPU, allocation, exception, contention, and heap profiling of .NET commands or existing trace artifacts. |
 | [`dotnet-cloc`](skills/dotnet-cloc/) | `1.0.0` | Use the open-source free `cloc` tool for line-count, language-mix, and diff statistics in .NET repositories. Use when a repo needs C# and solution footprint metrics, branch-to-branch LOC comparison, or repeatable code-size reporting in local workflows and CI. |
 | [`dotnet-codeql`](skills/dotnet-codeql/) | `1.0.0` | Use the open-source CodeQL ecosystem for .NET security analysis. Use when a repo needs CodeQL query packs, CLI-based analysis on open source codebases, or GitHub Action setup with explicit licensing caveats for private repositories. |
 | [`dotnet-complexity`](skills/dotnet-complexity/) | `1.0.0` | Use free built-in .NET maintainability analyzers and code metrics configuration to find overly complex methods and coupled code. Use when a repo needs cyclomatic complexity checks, maintainability thresholds, or complexity-driven refactoring gates. |
@@ -432,6 +433,7 @@ This catalog builds on the work of many open-source projects and their authors:
 | [cloc](https://github.com/AlDanial/cloc) | Al Danial | GPL-2.0 |
 | [CodeQL](https://github.com/github/codeql) | GitHub, Semmle | MIT (queries) |
 | [QuickDup](https://github.com/asynkron/QuickDup) | Roger Johansson, Asynkron | MIT |
+| [Asynkron.Profiler](https://github.com/asynkron/Asynkron.Profiler) | Roger Johansson, Asynkron | MIT |
 
 ### Frameworks & Libraries
 

@@ -282,6 +282,15 @@
       text-align: center;
     }
 
+    .hero-badges {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
     .hero-badge {
       display: inline-flex;
       align-items: center;
@@ -292,7 +301,30 @@
       border-radius: 50px;
       font-size: 0.85rem;
       font-weight: 600;
-      margin-bottom: 24px;
+    }
+
+    .release-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 16px;
+      border-radius: 50px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .release-badge:hover {
+      border-color: var(--accent-primary);
+      transform: translateY(-1px);
+    }
+
+    .release-badge-label {
+      color: var(--text-secondary);
     }
 
     .hero h1 {
@@ -1642,8 +1674,14 @@
 
   <main class="container">
     <section class="hero">
-      <div class="hero-badge">
-        <span>Open Source</span>
+      <div class="hero-badges">
+        <div class="hero-badge">
+          <span>Open Source</span>
+        </div>
+        <a class="release-badge" href="RELEASE_URL_PLACEHOLDER" target="_blank" rel="noreferrer">
+          <span class="release-badge-label">Current release</span>
+          <span>RELEASE_TAG_PLACEHOLDER</span>
+        </a>
       </div>
       <h1>.NET Skills<br>for <span class="highlight">Modern Coding Platforms</span></h1>
       <p>Stop re-explaining .NET in every tool. Install the same skill catalog for Claude Code, GitHub Copilot, Gemini, and Codex.</p>

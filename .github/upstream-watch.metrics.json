@@ -1,0 +1,12 @@
+{
+  "github_releases": [
+    {
+      "id": "asynkron-profiler-release",
+      "source": "https://github.com/asynkron/Asynkron.Profiler",
+      "skills": [
+        "dotnet-asynkron-profiler"
+      ]
+    }
+  ],
+  "documentation": []
+}

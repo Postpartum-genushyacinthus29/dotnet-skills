@@ -357,6 +357,8 @@ Rules:
 - `scripts/generate_pages.py` reads `catalog/skills.json` and `catalog/agents.json` and injects the public catalog data into the template.
 - The generated site is output to `artifacts/github-pages/` which is gitignored.
 - GitHub Pages deployment runs inside `publish-catalog.yml` as part of the unified nightly release.
+- The public site must show the current published `catalog-v*` release version as a visible page element, not only in metadata.
+- GitHub Pages generation and deployment must happen only after the current `catalog-v*` release has been created in `publish-catalog.yml`, so the rendered site can use the actual release version from that run.
 - The website displays the full skill catalog with search, category filters, installation commands, and a visible orchestration-agents section sourced from the repo catalog.
 - Keep the website focused on skill discovery and installation; do not expand it into unrelated documentation.
 - The website must show the `dotnet skills install <skill>` command pattern for each skill.
