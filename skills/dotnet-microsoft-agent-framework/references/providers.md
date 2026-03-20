@@ -21,9 +21,15 @@ If you start from the SDK alone, you usually miss the thread and hosting consequ
 
 - Prefer `ChatClientAgent` when you want the broadest `.NET` composition model.
 - Prefer Responses-based agents for new OpenAI-compatible integrations.
+- Prefer Azure OpenAI Responses when you need the richest Azure-hosted tool surface but still want to own composition inside your application.
 - Prefer Chat Completions only when compatibility or simplicity beats richer server-side behavior.
 - Prefer hosted agents only when managed service resources, managed tools, or managed thread storage are actual requirements.
 - Prefer the OpenAI SDK where the official docs say it is a viable fit across OpenAI-style services.
+
+Current Microsoft Learn provider docs now make two Azure distinctions especially important:
+
+1. Microsoft Foundry Agents is the canonical page for persistent service-managed Azure agent resources.
+2. Azure OpenAI Responses is the richer Azure OpenAI client, and the wider provider guidance now treats it as the flexible path when you need hosted tools and, in some flows, a Microsoft Foundry project endpoint.
 
 ## Provider Matrix
 
@@ -59,6 +65,8 @@ The official C# docs make these differences explicit:
 | Other `IChatClient` implementations | Varies | Varies |
 
 This table matters more than it looks. It decides whether your `AgentThread` stores full messages, a remote conversation ID, or custom serialized store state.
+
+Current Learn docs also consolidate the old Azure AI Foundry Agent and Foundry Models Chat/Responses URLs into one canonical Microsoft Foundry Agents page. Keep the architectural distinction between persistent Foundry agents and app-owned model clients, but do not treat those redirected page names as separate product families anymore.
 
 ## SDK And Endpoint Matrix
 
@@ -120,6 +128,14 @@ Choose `ChatClientAgent` when:
 - your application wants to own composition, DI, middleware, and policies
 - portability matters
 - you want one consistent abstraction over multiple model providers
+
+## Azure-hosted selection shortcut
+
+When the team says "we need Azure":
+
+- choose **Microsoft Foundry Agents** when the service should own the agent lifecycle, tools, and thread storage
+- choose **Azure OpenAI Responses** when the application should still own composition but needs the richest Azure OpenAI tool surface
+- choose **Azure OpenAI Chat Completions** only when simpler request/response behavior or compatibility matters more than hosted tools
 
 ## Local Models And Custom Clients
 

@@ -347,9 +347,11 @@ Rules:
 - Keep exactly two primary workflows for release mechanics: `catalog-check.yml` for pull-request validation and `publish-catalog.yml` for the unified nightly release.
 - The unified release workflow must run at `04:00` UTC, publish the NuGet tool, create/update the `catalog-v*` GitHub release, and deploy GitHub Pages in the same pipeline.
 - The unified release workflow should publish when `main` has new commits since the last `catalog-v*` release; manual dispatch may exist only as a fallback or backfill path, not as the primary workflow.
+- The scheduled `04:00` UTC release path must skip publishing when `main` has no unreleased commits since the latest non-draft `catalog-v*` release. Do not create duplicate nightly releases for an already released commit.
 - Remote skill content and the NuGet tool should be released from the same scheduled workflow, with `catalog-v*` release assets staying `dotnet-skills-manifest.json` and `dotnet-skills-catalog.zip`.
 - Automatic catalog versions should use the numeric calendar-plus-daily-index format `<year>.<month>.<day>.<daily-build-index>`, where the first release for a UTC day is `.0`, the second is `.1`, and so on. Do not add letter prefixes such as `r` or `ci` in release tags or titles.
 - The NuGet tool publish workflow must ignore `catalog-v*` releases so catalog content publishes never trigger package pushes by accident.
+- `catalog-v*` releases must publish intentional release notes, not a one-line automation placeholder. Release notes should summarize the change window, list merged PRs or commits, call out contributors, and explicitly identify first-time contributors when any appear in that release window.
 - The tool should use the newest non-draft `catalog-v*` GitHub release by default and fall back to bundled content only when the remote catalog is unavailable.
 - The bare `dotnet skills` usage view is still a normal startup path and must surface the same automatic self-update notice as other startup commands, unless update checks are explicitly suppressed.
 - Local `dotnet build` and `dotnet pack` for the tool may generate a temporary manifest in `obj/` from `skills/*/SKILL.md`; release CI remains the canonical place that generates checked catalog outputs and release assets.

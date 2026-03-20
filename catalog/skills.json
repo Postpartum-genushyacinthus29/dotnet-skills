@@ -39,7 +39,7 @@
     {
       "name": "dotnet-aspire",
       "title": ".NET Aspire",
-      "version": "1.3.0",
+      "version": "1.3.1",
       "category": "Cloud",
       "description": "Build, upgrade, and operate .NET Aspire application hosts with current CLI, AppHost, ServiceDefaults, integrations, dashboard, testing, and Azure deployment patterns for distributed apps.",
       "compatibility": "Best for current Aspire 13-era tooling on .NET 10; use version-aware upgrade guidance for older 8.x or 9.x Aspire solutions.",
@@ -327,7 +327,7 @@
     {
       "name": "dotnet-microsoft-agent-framework",
       "title": "Microsoft Agent Framework",
-      "version": "1.6.0",
+      "version": "1.7.0",
       "category": "AI",
       "description": "Build .NET AI agents and multi-agent workflows with Microsoft Agent Framework using the right agent type, threads, tools, workflows, hosting protocols, and enterprise guardrails.",
       "compatibility": "Requires preview-era Microsoft Agent Framework packages and a .NET application that truly needs agentic or workflow orchestration.",
@@ -552,7 +552,7 @@
     {
       "name": "dotnet-stylelint",
       "title": "Stylelint for Stylesheets in .NET Repositories",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "category": "Code Quality",
       "description": "Use Stylelint in .NET repositories that ship CSS, SCSS, or other stylesheet assets alongside web frontends. Use when a repo needs a dedicated CLI lint gate for selectors, properties, duplicate styles, naming conventions, or design-system rule enforcement.",
       "compatibility": "Requires a .NET repository with stylesheet assets such as `wwwroot/`, `ClientApp/`, `src/`, or other frontend folders managed with Node tooling.",

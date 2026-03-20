@@ -1011,6 +1011,7 @@ def render_support_panel(root_prefix: str) -> str:
         ("GitHub Copilot", "GH", "Repository-friendly skill layouts for team workflows and check-ins."),
         ("Gemini", "GM", "Consistent directory conventions for personal and repo-local installs."),
         ("Codex", "CX", "Native `.codex` roots plus auto-detect support in the CLI."),
+        ("Junie", "JN", "JetBrains-native `.junie` roots for project and personal skill and agent installs."),
     ]
 
     cards = []
@@ -1031,7 +1032,7 @@ def render_support_panel(root_prefix: str) -> str:
         <div class="section-header">
           <div>
             <h2>One catalog, multiple coding platforms</h2>
-            <p>The same installable catalog lands in Claude Code, GitHub Copilot, Gemini, and Codex without inventing a different setup flow for each one.</p>
+            <p>The same installable catalog lands in Claude Code, GitHub Copilot, Gemini, Codex, and Junie without inventing a different setup flow for each one.</p>
           </div>
           {render_panel_links([("About the catalog", f"{root_prefix}about/")])}
         </div>
@@ -1070,7 +1071,7 @@ def render_home_page(
           {render_metric_card(str(len(packages)), "Packages")}
           {render_metric_card(str(len(agents)), "Agents")}
           {render_metric_card(str(len(category_infos)), "Categories")}
-          {render_metric_card("4", "Platforms")}
+          {render_metric_card("5", "Platforms")}
         </div>
       </section>
     """
@@ -1585,7 +1586,7 @@ def render_about_page(
         <div class="article-copy">
           <section>
             <h2>What this catalog is for</h2>
-            <p>dotnet-skills packages modern .NET knowledge into installable skills and routing agents that can be consumed by Claude Code, GitHub Copilot, Gemini, and Codex. The public site mirrors that structure with dedicated pages that are easier to browse, share, and revisit.</p>
+            <p>dotnet-skills packages modern .NET knowledge into installable skills and routing agents that can be consumed by Claude Code, GitHub Copilot, Gemini, Codex, and Junie. The public site mirrors that structure with dedicated pages that are easier to browse, share, and revisit.</p>
           </section>
           <section>
             <h2>How updates land</h2>
@@ -1695,7 +1696,7 @@ def build_root_json_ld(site_url: str, canonical_url: str, release_version: str) 
                     "name": "What is dotnet-skills?",
                     "acceptedAnswer": {
                         "@type": "Answer",
-                        "text": "dotnet-skills is a shared .NET skill catalog for coding assistants such as Claude Code, GitHub Copilot, Gemini, and Codex.",
+                        "text": "dotnet-skills is a shared .NET skill catalog for coding assistants such as Claude Code, GitHub Copilot, Gemini, Codex, and Junie.",
                     },
                 },
                 {
@@ -1945,8 +1946,8 @@ def main() -> int:
     add_page(
         path="",
         title=".NET Skills for Modern Coding Platforms | dotnet-skills",
-        description="A shared .NET skill catalog for Claude Code, GitHub Copilot, Gemini, and Codex with package, category, skill, agent, and about pages.",
-        keywords=["dotnet", ".NET skills", ".NET skill packages", "Claude Code", "GitHub Copilot", "Gemini", "Codex", "AI coding assistants", "skill catalog"],
+        description="A shared .NET skill catalog for Claude Code, GitHub Copilot, Gemini, Codex, and Junie with package, category, skill, agent, and about pages.",
+        keywords=["dotnet", ".NET skills", ".NET skill packages", "Claude Code", "GitHub Copilot", "Gemini", "Codex", "Junie", "AI coding assistants", "skill catalog"],
         body_class="page-home",
         main_content=root_body,
         json_ld=build_root_json_ld(site_url, site_url, release_version),

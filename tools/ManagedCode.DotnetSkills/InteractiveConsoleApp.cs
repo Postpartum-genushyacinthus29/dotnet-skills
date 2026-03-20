@@ -158,7 +158,7 @@ internal sealed class InteractiveConsoleApp
             + Environment.NewLine
             + "Explicit commands such as [green]dotnet skills install aspire[/] still execute directly."
             + Environment.NewLine
-            + "Use [green]Session target[/] to pin Codex, Claude, Copilot, or Gemini before you install.");
+            + "Use [green]Session target[/] to pin Codex, Claude, Copilot, Gemini, or Junie before you install.");
         AnsiConsole.Write(new Panel(workflow).Header("Mode").Expand());
         AnsiConsole.WriteLine();
 

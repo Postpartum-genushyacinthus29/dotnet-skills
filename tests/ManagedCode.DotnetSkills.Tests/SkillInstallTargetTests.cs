@@ -11,13 +11,14 @@ public sealed class SkillInstallTargetTests
         bool hasClaude,
         bool hasCopilot,
         bool hasGemini,
+        bool hasJunie,
         bool hasSharedFallback)
     {
         using var tempDirectory = new TemporaryDirectory();
-        CreatePlatformDirectories(tempDirectory.Path, hasCodex, hasClaude, hasCopilot, hasGemini, hasSharedFallback);
+        CreatePlatformDirectories(tempDirectory.Path, hasCodex, hasClaude, hasCopilot, hasGemini, hasJunie, hasSharedFallback);
 
         var layouts = SkillInstallTarget.ResolveAllDetected(tempDirectory.Path, InstallScope.Project);
-        var expected = BuildExpectedProjectLayouts(tempDirectory.Path, hasCodex, hasClaude, hasCopilot, hasGemini);
+        var expected = BuildExpectedProjectLayouts(tempDirectory.Path, hasCodex, hasClaude, hasCopilot, hasGemini, hasJunie);
 
         Assert.Equal(expected.Select(item => item.Platform).ToArray(), layouts.Select(layout => layout.Agent).ToArray());
         Assert.Equal(expected.Select(item => item.Path).ToArray(), layouts.Select(layout => layout.PrimaryRoot.FullName).ToArray());
@@ -31,10 +32,11 @@ public sealed class SkillInstallTargetTests
         bool hasClaude,
         bool hasCopilot,
         bool hasGemini,
+        bool hasJunie,
         bool hasSharedFallback)
     {
         using var tempDirectory = new TemporaryDirectory();
-        CreatePlatformDirectories(tempDirectory.Path, hasCodex, hasClaude, hasCopilot, hasGemini, hasSharedFallback);
+        CreatePlatformDirectories(tempDirectory.Path, hasCodex, hasClaude, hasCopilot, hasGemini, hasJunie, hasSharedFallback);
 
         var layout = SkillInstallTarget.Resolve(
             explicitTargetPath: null,
@@ -42,7 +44,7 @@ public sealed class SkillInstallTargetTests
             scope: InstallScope.Project,
             projectDirectory: tempDirectory.Path);
 
-        var expected = BuildExpectedProjectLayouts(tempDirectory.Path, hasCodex, hasClaude, hasCopilot, hasGemini)[0];
+        var expected = BuildExpectedProjectLayouts(tempDirectory.Path, hasCodex, hasClaude, hasCopilot, hasGemini, hasJunie)[0];
 
         Assert.Equal(expected.Platform, layout.Agent);
         Assert.Equal(expected.Path, layout.PrimaryRoot.FullName);
@@ -56,6 +58,7 @@ public sealed class SkillInstallTargetTests
         bool hasClaude,
         bool hasCopilot,
         bool hasGemini,
+        bool hasJunie,
         bool hasSharedFallback)
     {
         using var tempHome = new TemporaryDirectory();
@@ -68,10 +71,10 @@ public sealed class SkillInstallTargetTests
 
             try
             {
-                CreatePlatformDirectories(tempHome.Path, hasCodex, hasClaude, hasCopilot, hasGemini, hasSharedFallback);
+                CreatePlatformDirectories(tempHome.Path, hasCodex, hasClaude, hasCopilot, hasGemini, hasJunie, hasSharedFallback);
 
                 var layouts = SkillInstallTarget.ResolveAllDetected(tempHome.Path, InstallScope.Global);
-                var expected = BuildExpectedGlobalLayouts(tempHome.Path, hasCodex, hasClaude, hasCopilot, hasGemini);
+                var expected = BuildExpectedGlobalLayouts(tempHome.Path, hasCodex, hasClaude, hasCopilot, hasGemini, hasJunie);
 
                 Assert.Equal(expected.Select(item => item.Platform).ToArray(), layouts.Select(layout => layout.Agent).ToArray());
                 Assert.Equal(expected.Select(item => item.Path).ToArray(), layouts.Select(layout => layout.PrimaryRoot.FullName).ToArray());
@@ -93,6 +96,7 @@ public sealed class SkillInstallTargetTests
         bool hasClaude,
         bool hasCopilot,
         bool hasGemini,
+        bool hasJunie,
         bool hasSharedFallback)
     {
         using var tempHome = new TemporaryDirectory();
@@ -105,7 +109,7 @@ public sealed class SkillInstallTargetTests
 
             try
             {
-                CreatePlatformDirectories(tempHome.Path, hasCodex, hasClaude, hasCopilot, hasGemini, hasSharedFallback);
+                CreatePlatformDirectories(tempHome.Path, hasCodex, hasClaude, hasCopilot, hasGemini, hasJunie, hasSharedFallback);
 
                 var layout = SkillInstallTarget.Resolve(
                     explicitTargetPath: null,
@@ -113,7 +117,7 @@ public sealed class SkillInstallTargetTests
                     scope: InstallScope.Global,
                     projectDirectory: tempHome.Path);
 
-                var expected = BuildExpectedGlobalLayouts(tempHome.Path, hasCodex, hasClaude, hasCopilot, hasGemini)[0];
+                var expected = BuildExpectedGlobalLayouts(tempHome.Path, hasCodex, hasClaude, hasCopilot, hasGemini, hasJunie)[0];
 
                 Assert.Equal(expected.Platform, layout.Agent);
                 Assert.Equal(expected.Path, layout.PrimaryRoot.FullName);
@@ -192,9 +196,10 @@ public sealed class SkillInstallTargetTests
         foreach (var hasClaude in new[] { false, true })
         foreach (var hasCopilot in new[] { false, true })
         foreach (var hasGemini in new[] { false, true })
+        foreach (var hasJunie in new[] { false, true })
         foreach (var hasSharedFallback in new[] { false, true })
         {
-            yield return [hasCodex, hasClaude, hasCopilot, hasGemini, hasSharedFallback];
+            yield return [hasCodex, hasClaude, hasCopilot, hasGemini, hasJunie, hasSharedFallback];
         }
     }
 
@@ -204,9 +209,10 @@ public sealed class SkillInstallTargetTests
         foreach (var hasClaude in new[] { false, true })
         foreach (var hasCopilot in new[] { false, true })
         foreach (var hasGemini in new[] { false, true })
+        foreach (var hasJunie in new[] { false, true })
         foreach (var hasSharedFallback in new[] { false, true })
         {
-            yield return [hasCodex, hasClaude, hasCopilot, hasGemini, hasSharedFallback];
+            yield return [hasCodex, hasClaude, hasCopilot, hasGemini, hasJunie, hasSharedFallback];
         }
     }
 
@@ -219,6 +225,7 @@ public sealed class SkillInstallTargetTests
                      AgentPlatform.Claude,
                      AgentPlatform.Copilot,
                      AgentPlatform.Gemini,
+                     AgentPlatform.Junie,
                  })
         foreach (var scope in new[]
                  {
@@ -235,7 +242,8 @@ public sealed class SkillInstallTargetTests
         bool hasCodex,
         bool hasClaude,
         bool hasCopilot,
-        bool hasGemini)
+        bool hasGemini,
+        bool hasJunie)
     {
         var layouts = new List<ResolvedLayout>();
 
@@ -259,6 +267,11 @@ public sealed class SkillInstallTargetTests
             layouts.Add(new ResolvedLayout(AgentPlatform.Gemini, Path.Combine(rootPath, ".gemini", "skills")));
         }
 
+        if (hasJunie)
+        {
+            layouts.Add(new ResolvedLayout(AgentPlatform.Junie, Path.Combine(rootPath, ".junie", "skills")));
+        }
+
         if (layouts.Count > 0)
         {
             return layouts;
@@ -272,7 +285,8 @@ public sealed class SkillInstallTargetTests
         bool hasCodex,
         bool hasClaude,
         bool hasCopilot,
-        bool hasGemini)
+        bool hasGemini,
+        bool hasJunie)
     {
         var layouts = new List<ResolvedLayout>();
 
@@ -296,6 +310,11 @@ public sealed class SkillInstallTargetTests
             layouts.Add(new ResolvedLayout(AgentPlatform.Gemini, Path.Combine(homePath, ".gemini", "skills")));
         }
 
+        if (hasJunie)
+        {
+            layouts.Add(new ResolvedLayout(AgentPlatform.Junie, Path.Combine(homePath, ".junie", "skills")));
+        }
+
         if (layouts.Count > 0)
         {
             return layouts;
@@ -310,6 +329,7 @@ public sealed class SkillInstallTargetTests
         bool hasClaude,
         bool hasCopilot,
         bool hasGemini,
+        bool hasJunie,
         bool hasSharedFallback)
     {
         if (hasCodex)
@@ -331,6 +351,11 @@ public sealed class SkillInstallTargetTests
         if (hasGemini)
         {
             Directory.CreateDirectory(Path.Combine(rootDirectory, ".gemini"));
+        }
+
+        if (hasJunie)
+        {
+            Directory.CreateDirectory(Path.Combine(rootDirectory, ".junie"));
         }
 
         if (hasSharedFallback)

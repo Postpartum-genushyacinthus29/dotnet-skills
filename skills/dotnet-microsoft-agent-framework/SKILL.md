@@ -1,6 +1,6 @@
 ---
 name: dotnet-microsoft-agent-framework
-version: "1.6.0"
+version: "1.7.0"
 category: "AI"
 description: "Build .NET AI agents and multi-agent workflows with Microsoft Agent Framework using the right agent type, threads, tools, workflows, hosting protocols, and enterprise guardrails."
 compatibility: "Requires preview-era Microsoft Agent Framework packages and a .NET application that truly needs agentic or workflow orchestration."
@@ -54,6 +54,8 @@ flowchart LR
 - `AgentThread` still anchors most persisted conversation guidance, but some newer runtime surfaces now pass `AgentSession` instead. Treat either state object as opaque provider-owned data and verify exact callback signatures against the current official page.
 - `AgentResponse` and `AgentResponseUpdate` are not just text containers. They can include tool calls, tool results, structured output, reasoning-like updates, and response metadata.
 - `ChatClientAgent` is the safest default when you already have an `IChatClient` and do not need a hosted-agent service.
+- Current Learn docs now treat Microsoft Foundry Agents as the canonical Azure-hosted persistent-agent page. The old Azure AI Foundry Agent and Foundry Models Chat/Responses URLs now collapse into that broader provider surface, so do not model them as separate top-level product families in design discussions.
+- Current Learn docs also position Azure OpenAI Responses as the richest Azure OpenAI client: it is the path that exposes tool approval, code interpreter, file search, web search, hosted MCP, and local MCP tools.
 - `Workflow` is an explicit graph of executors and edges. Use it when the control flow must stay inspectable, typed, resumable, or human-steerable.
 - `AgentWorkflowBuilder` provides high-level factory methods such as `BuildConcurrent` for common agent orchestration patterns. Use it when you need concurrent or sequential agent pipelines without writing custom executor classes.
 - Hosting layers such as OpenAI-compatible HTTP, A2A, and AG-UI are adapters over your in-process agent or workflow. They do not replace the core architecture choice.
@@ -67,7 +69,8 @@ flowchart LR
 | One model-backed assistant with normal .NET composition | `ChatClientAgent` or `chatClient.AsAIAgent(...)` | Lowest friction, middleware-friendly, works with `IChatClient` |
 | OpenAI-style future-facing APIs, background responses, or richer response state | Responses-based agent | Better fit for new OpenAI-compatible integrations |
 | Simple client-managed chat history | Chat Completions agent | Keeps request/response simple |
-| Service-hosted agents and service-owned threads/tools | Azure AI Foundry Agent or other hosted agent | Managed runtime is the requirement |
+| Service-hosted agents and service-owned threads/tools | Microsoft Foundry Agent or other hosted agent | Managed runtime is the requirement |
+| Azure-hosted OpenAI-compatible models with the richest hosted-tool surface but app-owned composition | Azure OpenAI Responses agent | Best Azure OpenAI default when you need code interpreter, file search, web search, hosted MCP, or tool approval without moving to a persistent service-managed agent |
 | Anthropic Claude models (haiku, sonnet, opus) directly or via Azure Foundry | `AnthropicClient.AsAIAgent(...)` or `AnthropicFoundryClient.AsAIAgent(...)` | Use `Microsoft.Agents.AI.Anthropic`; add `Anthropic.Foundry` for Azure-hosted Claude |
 | Typed multi-step orchestration | `Workflow` or `AgentWorkflowBuilder` helpers | Control flow stays explicit and testable; use `BuildConcurrent` for agent fan-out/fan-in |
 | Week-long or failure-resilient Azure execution | Durable agent on Azure Functions | Durable Task gives replay and persisted state |

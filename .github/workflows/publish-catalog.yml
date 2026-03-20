@@ -9,6 +9,11 @@ on:
         description: "Catalog version to publish, for example 1.0.0, 1.2.3-preview.1, or 2026.3.15.0"
         required: false
         type: string
+      force_release:
+        description: "Force a release even when the latest catalog-v* release already covers the current main commit"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -34,6 +39,7 @@ jobs:
     environment: release
     outputs:
       should_release: ${{ steps.changes.outputs.has_new_commits }}
+      previous_tag: ${{ steps.changes.outputs.latest_tag }}
       catalog_version: ${{ steps.version.outputs.version }}
       catalog_tag: ${{ steps.version.outputs.tag }}
       package_version: ${{ steps.package_version.outputs.package_version }}
@@ -46,18 +52,21 @@ jobs:
 
       - name: Check for new commits on main since latest catalog release
         id: changes
+        env:
+          GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           git fetch --force --tags origin main
 
-          latest_tag=$(git tag --list "${{ env.CATALOG_TAG_PREFIX }}*" --sort=-v:refname | head -n 1)
+          latest_tag=$(gh api "repos/${{ github.repository }}/releases?per_page=100" --jq 'map(select(.draft == false and (.tag_name | startswith("'"${{ env.CATALOG_TAG_PREFIX }}"'")))) | sort_by(.published_at) | reverse | (.[0].tag_name // "")')
           main_ref="origin/main"
+          force_release='${{ inputs.force_release }}'
 
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "$force_release" == "true" ]]; then
             echo "has_new_commits=true" >> "$GITHUB_OUTPUT"
             echo "latest_tag=$latest_tag" >> "$GITHUB_OUTPUT"
             echo "override=true" >> "$GITHUB_OUTPUT"
-            echo "reason=manual_dispatch" >> "$GITHUB_OUTPUT"
+            echo "reason=manual_force_release" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
@@ -89,7 +98,7 @@ jobs:
         if: steps.changes.outputs.has_new_commits != 'true'
         shell: bash
         run: |
-          echo "No new commits on main since latest catalog tag '${{ steps.changes.outputs.latest_tag }}'. Skipping release."
+          echo "No unreleased commits on main since latest non-draft catalog release '${{ steps.changes.outputs.latest_tag }}'. Skipping release."
 
       - name: Set up Python
         if: steps.changes.outputs.has_new_commits == 'true'
@@ -167,6 +176,27 @@ jobs:
           echo "base_version=$base_version" >> "$GITHUB_OUTPUT"
           echo "package_version=$version" >> "$GITHUB_OUTPUT"
 
+      - name: Generate release notes
+        if: steps.changes.outputs.has_new_commits == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          previous_tag='${{ steps.changes.outputs.latest_tag }}'
+          previous_args=()
+          if [[ -n "$previous_tag" ]]; then
+            previous_args+=(--previous-tag "$previous_tag")
+          fi
+
+          python3 scripts/generate_release_notes.py \
+            --repo "${{ github.repository }}" \
+            --tag "${{ steps.version.outputs.tag }}" \
+            --catalog-version "${{ steps.version.outputs.version }}" \
+            --package-version "${{ steps.package_version.outputs.package_version }}" \
+            --target-commit "${{ github.sha }}" \
+            --output artifacts/release/release-notes.md \
+            "${previous_args[@]}"
+
       - name: Build dotnet tool
         if: steps.changes.outputs.has_new_commits == 'true'
         run: dotnet build "${{ env.SOLUTION_FILE }}" -c Release -p:ContinuousIntegrationBuild=true -p:Version="${{ steps.package_version.outputs.package_version }}"
@@ -221,21 +251,11 @@ jobs:
         run: |
           tag='${{ steps.version.outputs.tag }}'
           title="Catalog ${{ steps.version.outputs.version }}"
-          notes=$(cat <<EOF
-          Automated nightly release for dotnet-skills.
-
-          Source commit: ${{ github.sha }}
-          Tool package version: ${{ steps.package_version.outputs.package_version }}
-          Assets:
-          - dotnet-skills-manifest.json
-          - dotnet-skills-catalog.zip
-          EOF
-          )
 
           if gh release view "$tag" >/dev/null 2>&1; then
-            gh release edit "$tag" --title "$title" --notes "$notes"
+            gh release edit "$tag" --title "$title" --notes-file artifacts/release/release-notes.md
           else
-            gh release create "$tag" --title "$title" --notes "$notes" --latest
+            gh release create "$tag" --title "$title" --notes-file artifacts/release/release-notes.md --latest
           fi
 
           gh release upload "$tag" artifacts/catalog-release/dotnet-skills-manifest.json artifacts/catalog-release/dotnet-skills-catalog.zip --clobber

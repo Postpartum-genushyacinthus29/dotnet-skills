@@ -14,7 +14,7 @@ This catalog fixes that. A growing catalog covering the entire .NET ecosystem—
 ## Why This Matters
 
 - **No more outdated patterns.** Skills are maintained by the community and track official Microsoft documentation.
-- **Works everywhere.** Same skills for Claude, Copilot, Gemini, and Codex.
+- **Works everywhere.** Same skills for Claude, Copilot, Gemini, Codex, and Junie.
 - **Community-driven.** Missing a skill for your favorite library? Add it and help everyone.
 
 **Your favorite .NET library deserves a skill.** If you maintain an open-source project or just love a framework that's missing, [contribute it](CONTRIBUTING.md). Let's make AI agents actually useful for .NET developers.
@@ -80,6 +80,7 @@ Catalog releases are published automatically in `.github/workflows/publish-catal
 | Copilot | `~/.copilot/skills/` | `.github/skills/` |
 | Gemini | `~/.gemini/skills/` | `.gemini/skills/` |
 | Codex | `$CODEX_HOME/skills/` (default: `~/.codex/skills/`) | `.codex/skills/` |
+| Junie | `~/.junie/skills/` | `.junie/skills/` |
 | Default fallback | `~/.agents/skills/` | `.agents/skills/` |
 
 ### Orchestration Agents Installation Paths
@@ -90,12 +91,13 @@ Catalog releases are published automatically in `.github/workflows/publish-catal
 | Copilot | `~/.copilot/agents/` | `.github/agents/` |
 | Gemini | `~/.gemini/agents/` | `.gemini/agents/` |
 | Codex | `$CODEX_HOME/agents/` (default: `~/.codex/agents/`) | `.codex/agents/` |
+| Junie | `~/.junie/agents/` | `.junie/agents/` |
 
 `dotnet skills agent install --auto` writes only to already existing native agent directories. It does not use `.agents` as a shared agent target; if no native agent directory exists yet, specify `--agent` or `--target`.
 
 `dotnet skills agent ... --target <path>` requires an explicit `--agent` because the generated file format depends on the selected platform.
 
-When `--agent` is omitted for skill installation, the tool checks for `.codex/`, `.claude/`, `.github/`, and `.gemini/` directories in that order, installs into every already existing native platform target it finds, and creates `.agents/skills/` only when no native platform folder exists.
+When `--agent` is omitted for skill installation, the tool checks for `.codex/`, `.claude/`, `.github/`, `.gemini/`, and `.junie/` directories in that order, installs into every already existing native platform target it finds, and creates `.agents/skills/` only when no native platform folder exists.
 
 ## Orchestration Agents
 
@@ -196,7 +198,7 @@ This catalog currently contains **73** skills.
 
 | Skill | Version | Description |
 |-------|---------|-------------|
-| [`dotnet-aspire`](skills/dotnet-aspire/) | `1.3.0` | Build, upgrade, and operate .NET Aspire application hosts with current CLI, AppHost, ServiceDefaults, integrations, dashboard, testing, and Azure deployment patterns for distributed apps. |
+| [`dotnet-aspire`](skills/dotnet-aspire/) | `1.3.1` | Build, upgrade, and operate .NET Aspire application hosts with current CLI, AppHost, ServiceDefaults, integrations, dashboard, testing, and Azure deployment patterns for distributed apps. |
 | [`dotnet-azure-functions`](skills/dotnet-azure-functions/) | `1.0.0` | Build, review, or migrate Azure Functions in .NET with correct execution model, isolated worker setup, bindings, DI, and Durable Functions patterns. |
 
 ### Distributed
@@ -240,7 +242,7 @@ This catalog currently contains **73** skills.
 | Skill | Version | Description |
 |-------|---------|-------------|
 | [`dotnet-mcp`](skills/dotnet-mcp/) | `1.1.0` | Build or consume Model Context Protocol (MCP) servers and clients in .NET using the official MCP C# SDK, including stdio, Streamable HTTP, tools, prompts, resources, and capability negotiation. |
-| [`dotnet-microsoft-agent-framework`](skills/dotnet-microsoft-agent-framework/) | `1.6.0` | Build .NET AI agents and multi-agent workflows with Microsoft Agent Framework using the right agent type, threads, tools, workflows, hosting protocols, and enterprise guardrails. |
+| [`dotnet-microsoft-agent-framework`](skills/dotnet-microsoft-agent-framework/) | `1.7.0` | Build .NET AI agents and multi-agent workflows with Microsoft Agent Framework using the right agent type, threads, tools, workflows, hosting protocols, and enterprise guardrails. |
 | [`dotnet-microsoft-extensions-ai`](skills/dotnet-microsoft-extensions-ai/) | `1.2.2` | Build provider-agnostic .NET AI integrations with `Microsoft.Extensions.AI`, `IChatClient`, embeddings, middleware, structured output, vector search, and evaluation. |
 | [`dotnet-mixed-reality`](skills/dotnet-mixed-reality/) | `1.0.0` | Work on C# and .NET-adjacent mixed-reality solutions around HoloLens, MRTK, OpenXR, Azure services, and integration boundaries where .NET participates in the stack. |
 | [`dotnet-mlnet`](skills/dotnet-mlnet/) | `1.0.0` | Use ML.NET to train, evaluate, or integrate machine-learning models into .NET applications with realistic data preparation, inference, and deployment expectations. |
@@ -286,7 +288,7 @@ This catalog currently contains **73** skills.
 | [`dotnet-roslynator`](skills/dotnet-roslynator/) | `1.0.0` | Use the open-source free `Roslynator` analyzer packages and optional CLI for .NET. Use when a repo wants broad C# static analysis, auto-fix flows, dead-code detection, optional CLI checks, or extra rules beyond the SDK analyzers. |
 | [`dotnet-sonarjs`](skills/dotnet-sonarjs/) | `1.0.0` | Use SonarJS-derived rules in .NET repositories that ship JavaScript or TypeScript frontends and need deeper bug-risk, code-smell, or cognitive-complexity checks than a minimal ESLint baseline. Use when the repo wants `eslint-plugin-sonarjs` locally or already runs SonarQube or SonarCloud in CI. |
 | [`dotnet-stylecop-analyzers`](skills/dotnet-stylecop-analyzers/) | `1.0.0` | Use the open-source free `StyleCop.Analyzers` package for naming, layout, documentation, and style rules in .NET projects. Use when a repo wants stricter style conventions than the SDK analyzers alone provide. |
-| [`dotnet-stylelint`](skills/dotnet-stylelint/) | `1.0.0` | Use Stylelint in .NET repositories that ship CSS, SCSS, or other stylesheet assets alongside web frontends. Use when a repo needs a dedicated CLI lint gate for selectors, properties, duplicate styles, naming conventions, or design-system rule enforcement. |
+| [`dotnet-stylelint`](skills/dotnet-stylelint/) | `1.1.0` | Use Stylelint in .NET repositories that ship CSS, SCSS, or other stylesheet assets alongside web frontends. Use when a repo needs a dedicated CLI lint gate for selectors, properties, duplicate styles, naming conventions, or design-system rule enforcement. |
 | [`dotnet-webhint`](skills/dotnet-webhint/) | `1.0.0` | Use webhint in .NET repositories that ship browser-facing frontends. Use when a repo needs CLI audits for accessibility, performance, security headers, PWA signals, SEO, or runtime page quality against a served site or built frontend output. |
 
 ### Architecture

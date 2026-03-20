@@ -1,6 +1,6 @@
 ---
 name: dotnet-stylelint
-version: "1.0.0"
+version: "1.1.0"
 category: "Code Quality"
 description: "Use Stylelint in .NET repositories that ship CSS, SCSS, or other stylesheet assets alongside web frontends. Use when a repo needs a dedicated CLI lint gate for selectors, properties, duplicate styles, naming conventions, or design-system rule enforcement."
 compatibility: "Requires a .NET repository with stylesheet assets such as `wwwroot/`, `ClientApp/`, `src/`, or other frontend folders managed with Node tooling."
@@ -67,6 +67,18 @@ compatibility: "Requires a .NET repository with stylesheet assets such as `wwwro
 - Massive autofix churn usually means generated assets or third-party CSS slipped into the lint target.
 - Design-system rule noise should be handled by tuning the checked-in config, not by skipping the linter entirely.
 
+## Current 17.5 Guidance
+
+- Stylelint `17.5.0` deprecates the `*syntax` rule options under `declaration-property-value-no-unknown`. If the repo still relies on those options, move the compatibility into `customSyntax` or parser selection instead of extending deprecated rule config.
+- `media-feature-name-value-no-unknown` now supports `ignoreMediaFeatureNameValues`. Use it when the design system or platform layer intentionally allows non-standard media feature values and you want that exception recorded explicitly.
+- Stylelint `17.5.0` fixed `node_modules` ignore behavior in Node.js API flows that pass `codeFilename`. Keep repo ignores focused on generated or vendored assets instead of compensating for the old bug with over-broad globs.
+- Selector and deprecated-keyword false-positive fixes landed in `no-descending-specificity`, `no-duplicate-selectors`, and `declaration-property-value-keyword-no-deprecated`. Re-run the repo baseline before preserving stale disables or waivers.
+
+## Official Sources
+
+- [Stylelint 17.5.0 release notes](https://github.com/stylelint/stylelint/releases/tag/17.5.0)
+- `references/release-notes.md`
+
 ## Deliver
 
 - explicit stylesheet lint ownership
@@ -103,3 +115,7 @@ compatibility: "Requires a .NET repository with stylesheet assets such as `wwwro
 - "Add Stylelint for the SCSS in this ASP.NET Core app."
 - "Block duplicate selectors and invalid CSS in CI."
 - "Fix the current Stylelint violations without touching generated CSS."
+
+## References
+
+- [release-notes.md](references/release-notes.md) - Current 17.5.0 release changes that matter for repo config, rule tuning, and Node API integrations

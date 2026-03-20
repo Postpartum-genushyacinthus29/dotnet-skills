@@ -452,7 +452,7 @@ internal static class ConsoleUi
             "- Short aliases work everywhere: `aspire` resolves to `dotnet-aspire`.",
             "- Package installs expand into multiple skills. Example: `dotnet skills install package code-quality`.",
             "- Set `DOTNET_SKILLS_SKIP_UPDATE_CHECK=1` to suppress automatic tool update notices on startup.",
-            "- Auto skill target detection probes `.codex`, `.claude`, `.github`, and `.gemini`; it writes to every existing native platform target it finds, and falls back to `.agents/skills` only when no native platform folder exists.",
+            "- Auto skill target detection probes `.codex`, `.claude`, `.github`, `.gemini`, and `.junie`; it writes to every existing native platform target it finds, and falls back to `.agents/skills` only when no native platform folder exists.",
             "- Agent auto-detect uses only native agent roots. If none exist yet, specify `--agent` or `--target`.");
 
         AnsiConsole.Write(new Panel(new Markup(Escape(notes))).Header("Notes").Expand());

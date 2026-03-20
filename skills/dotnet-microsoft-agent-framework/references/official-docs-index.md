@@ -25,6 +25,7 @@ The local snapshot lives under `references/official-docs/`.
 ## High-Value Entry Points
 
 - Agent types: `official-docs/user-guide/agents/agent-types/index.md`
+- Azure provider pages: `official-docs/user-guide/agents/agent-types/microsoft-foundry-agents.md`, `official-docs/user-guide/agents/agent-types/azure-openai-chat-completion-agent.md`, and `official-docs/user-guide/agents/agent-types/azure-openai-responses-agent.md`
 - Running agents and conversations: `official-docs/user-guide/agents/running-agents.md`
 - Tools: `official-docs/user-guide/agents/agent-tools.md`
 - Middleware, memory, and RAG: `official-docs/user-guide/agents/agent-middleware.md`, `official-docs/user-guide/agents/agent-memory.md`, and `official-docs/user-guide/agents/agent-rag.md`

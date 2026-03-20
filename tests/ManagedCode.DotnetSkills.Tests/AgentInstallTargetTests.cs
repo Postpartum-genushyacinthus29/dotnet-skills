@@ -11,13 +11,14 @@ public sealed class AgentInstallTargetTests
         bool hasClaude,
         bool hasCopilot,
         bool hasGemini,
+        bool hasJunie,
         bool hasSharedFallback)
     {
         using var tempDirectory = new TemporaryDirectory();
-        CreatePlatformDirectories(tempDirectory.Path, hasCodex, hasClaude, hasCopilot, hasGemini, hasSharedFallback);
+        CreatePlatformDirectories(tempDirectory.Path, hasCodex, hasClaude, hasCopilot, hasGemini, hasJunie, hasSharedFallback);
 
         var layouts = AgentInstallTarget.ResolveAllDetected(tempDirectory.Path, InstallScope.Project);
-        var expected = BuildExpectedProjectLayouts(tempDirectory.Path, hasCodex, hasClaude, hasCopilot, hasGemini);
+        var expected = BuildExpectedProjectLayouts(tempDirectory.Path, hasCodex, hasClaude, hasCopilot, hasGemini, hasJunie);
 
         Assert.Equal(expected.Select(item => item.Platform).ToArray(), layouts.Select(layout => layout.Agent).ToArray());
         Assert.Equal(expected.Select(item => item.Path).ToArray(), layouts.Select(layout => layout.PrimaryRoot.FullName).ToArray());
@@ -31,12 +32,13 @@ public sealed class AgentInstallTargetTests
         bool hasClaude,
         bool hasCopilot,
         bool hasGemini,
+        bool hasJunie,
         bool hasSharedFallback)
     {
         using var tempDirectory = new TemporaryDirectory();
-        CreatePlatformDirectories(tempDirectory.Path, hasCodex, hasClaude, hasCopilot, hasGemini, hasSharedFallback);
+        CreatePlatformDirectories(tempDirectory.Path, hasCodex, hasClaude, hasCopilot, hasGemini, hasJunie, hasSharedFallback);
 
-        var expected = BuildExpectedProjectLayouts(tempDirectory.Path, hasCodex, hasClaude, hasCopilot, hasGemini);
+        var expected = BuildExpectedProjectLayouts(tempDirectory.Path, hasCodex, hasClaude, hasCopilot, hasGemini, hasJunie);
         if (expected.Count == 0)
         {
             var exception = Assert.Throws<InvalidOperationException>(() =>
@@ -68,6 +70,7 @@ public sealed class AgentInstallTargetTests
         bool hasClaude,
         bool hasCopilot,
         bool hasGemini,
+        bool hasJunie,
         bool hasSharedFallback)
     {
         using var tempHome = new TemporaryDirectory();
@@ -80,10 +83,10 @@ public sealed class AgentInstallTargetTests
 
             try
             {
-                CreatePlatformDirectories(tempHome.Path, hasCodex, hasClaude, hasCopilot, hasGemini, hasSharedFallback);
+                CreatePlatformDirectories(tempHome.Path, hasCodex, hasClaude, hasCopilot, hasGemini, hasJunie, hasSharedFallback);
 
                 var layouts = AgentInstallTarget.ResolveAllDetected(tempHome.Path, InstallScope.Global);
-                var expected = BuildExpectedGlobalLayouts(tempHome.Path, hasCodex, hasClaude, hasCopilot, hasGemini);
+                var expected = BuildExpectedGlobalLayouts(tempHome.Path, hasCodex, hasClaude, hasCopilot, hasGemini, hasJunie);
 
                 Assert.Equal(expected.Select(item => item.Platform).ToArray(), layouts.Select(layout => layout.Agent).ToArray());
                 Assert.Equal(expected.Select(item => item.Path).ToArray(), layouts.Select(layout => layout.PrimaryRoot.FullName).ToArray());
@@ -105,6 +108,7 @@ public sealed class AgentInstallTargetTests
         bool hasClaude,
         bool hasCopilot,
         bool hasGemini,
+        bool hasJunie,
         bool hasSharedFallback)
     {
         using var tempHome = new TemporaryDirectory();
@@ -117,9 +121,9 @@ public sealed class AgentInstallTargetTests
 
             try
             {
-                CreatePlatformDirectories(tempHome.Path, hasCodex, hasClaude, hasCopilot, hasGemini, hasSharedFallback);
+                CreatePlatformDirectories(tempHome.Path, hasCodex, hasClaude, hasCopilot, hasGemini, hasJunie, hasSharedFallback);
 
-                var expected = BuildExpectedGlobalLayouts(tempHome.Path, hasCodex, hasClaude, hasCopilot, hasGemini);
+                var expected = BuildExpectedGlobalLayouts(tempHome.Path, hasCodex, hasClaude, hasCopilot, hasGemini, hasJunie);
                 if (expected.Count == 0)
                 {
                     var exception = Assert.Throws<InvalidOperationException>(() =>
@@ -232,9 +236,10 @@ public sealed class AgentInstallTargetTests
         foreach (var hasClaude in new[] { false, true })
         foreach (var hasCopilot in new[] { false, true })
         foreach (var hasGemini in new[] { false, true })
+        foreach (var hasJunie in new[] { false, true })
         foreach (var hasSharedFallback in new[] { false, true })
         {
-            yield return [hasCodex, hasClaude, hasCopilot, hasGemini, hasSharedFallback];
+            yield return [hasCodex, hasClaude, hasCopilot, hasGemini, hasJunie, hasSharedFallback];
         }
     }
 
@@ -244,9 +249,10 @@ public sealed class AgentInstallTargetTests
         foreach (var hasClaude in new[] { false, true })
         foreach (var hasCopilot in new[] { false, true })
         foreach (var hasGemini in new[] { false, true })
+        foreach (var hasJunie in new[] { false, true })
         foreach (var hasSharedFallback in new[] { false, true })
         {
-            yield return [hasCodex, hasClaude, hasCopilot, hasGemini, hasSharedFallback];
+            yield return [hasCodex, hasClaude, hasCopilot, hasGemini, hasJunie, hasSharedFallback];
         }
     }
 
@@ -260,6 +266,8 @@ public sealed class AgentInstallTargetTests
         yield return [AgentPlatform.Copilot, InstallScope.Global, AgentInstallMode.CopilotAgentFiles];
         yield return [AgentPlatform.Gemini, InstallScope.Project, AgentInstallMode.MarkdownAgentFiles];
         yield return [AgentPlatform.Gemini, InstallScope.Global, AgentInstallMode.MarkdownAgentFiles];
+        yield return [AgentPlatform.Junie, InstallScope.Project, AgentInstallMode.MarkdownAgentFiles];
+        yield return [AgentPlatform.Junie, InstallScope.Global, AgentInstallMode.MarkdownAgentFiles];
     }
 
     private static IReadOnlyList<ResolvedLayout> BuildExpectedProjectLayouts(
@@ -267,7 +275,8 @@ public sealed class AgentInstallTargetTests
         bool hasCodex,
         bool hasClaude,
         bool hasCopilot,
-        bool hasGemini)
+        bool hasGemini,
+        bool hasJunie)
     {
         var layouts = new List<ResolvedLayout>();
 
@@ -291,6 +300,11 @@ public sealed class AgentInstallTargetTests
             layouts.Add(new ResolvedLayout(AgentPlatform.Gemini, Path.Combine(rootPath, ".gemini", "agents"), AgentInstallMode.MarkdownAgentFiles));
         }
 
+        if (hasJunie)
+        {
+            layouts.Add(new ResolvedLayout(AgentPlatform.Junie, Path.Combine(rootPath, ".junie", "agents"), AgentInstallMode.MarkdownAgentFiles));
+        }
+
         return layouts;
     }
 
@@ -299,7 +313,8 @@ public sealed class AgentInstallTargetTests
         bool hasCodex,
         bool hasClaude,
         bool hasCopilot,
-        bool hasGemini)
+        bool hasGemini,
+        bool hasJunie)
     {
         var layouts = new List<ResolvedLayout>();
 
@@ -323,6 +338,11 @@ public sealed class AgentInstallTargetTests
             layouts.Add(new ResolvedLayout(AgentPlatform.Gemini, Path.Combine(homePath, ".gemini", "agents"), AgentInstallMode.MarkdownAgentFiles));
         }
 
+        if (hasJunie)
+        {
+            layouts.Add(new ResolvedLayout(AgentPlatform.Junie, Path.Combine(homePath, ".junie", "agents"), AgentInstallMode.MarkdownAgentFiles));
+        }
+
         return layouts;
     }
 
@@ -332,6 +352,7 @@ public sealed class AgentInstallTargetTests
         bool hasClaude,
         bool hasCopilot,
         bool hasGemini,
+        bool hasJunie,
         bool hasSharedFallback)
     {
         if (hasCodex)
@@ -353,6 +374,11 @@ public sealed class AgentInstallTargetTests
         if (hasGemini)
         {
             Directory.CreateDirectory(Path.Combine(rootDirectory, ".gemini"));
+        }
+
+        if (hasJunie)
+        {
+            Directory.CreateDirectory(Path.Combine(rootDirectory, ".junie"));
         }
 
         if (hasSharedFallback)

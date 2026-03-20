@@ -9,6 +9,7 @@ Use this reference when the task is clearly about current Aspire application-hos
 - [Current AppHost modeling patterns](#current-apphost-modeling-patterns)
 - [Dependency and configuration flow](#dependency-and-configuration-flow)
 - [ServiceDefaults boundaries](#servicedefaults-boundaries)
+- [Servicing patch posture](#servicing-patch-posture)
 - [Closed-box testing](#closed-box-testing)
 - [Upgrade checkpoints](#upgrade-checkpoints)
 - [Anti-patterns](#anti-patterns)
@@ -59,6 +60,19 @@ Use `aspire add` when it improves repeatability, especially for:
 - common first-party integrations
 - starter resources that should match current Aspire conventions
 - reducing hand-written AppHost or project-file drift
+
+## Servicing patch posture
+
+Aspire `13.1.3` is a servicing release, not a new application model. The current release notes only call out installer publishing work, so the right operational response is to keep the existing 13.1 CLI-first guidance and make patch upgrades boring and consistent.
+
+When you roll a 13.1.x patch:
+
+1. Keep the Aspire CLI and `Aspire.AppHost.Sdk` on the same patch line.
+2. Update adjacent Aspire packages that move with the AppHost, especially hosting and testing packages.
+3. Run `aspire update` before hand-editing package versions unless the repo intentionally pins them.
+4. Revalidate the AppHost start path, resource graph, dashboard, and any deployment scripts after the patch lands.
+
+Do not re-architect the AppHost just because a servicing release shipped.
 
 ## AppHost shapes
 
