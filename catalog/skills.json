@@ -300,7 +300,7 @@
     {
       "name": "dotnet-mcaf",
       "title": "MCAF Adoption",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "category": "Core",
       "description": "Adopt MCAF alongside the dotnet-skills catalog with the right AGENTS.md layout, repo-native docs, skill installation flow, verification rules, and non-trivial task workflow.",
       "compatibility": "Best for repositories that want MCAF governance and also use dotnet-skills for actual .NET implementation work.",

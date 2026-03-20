@@ -54,3 +54,36 @@ Then route:
 - maintainability, observability, security, or NFR policy -> the corresponding narrow MCAF skill
 
 After governance routing is clear, switch to the matching `dotnet-*` skill for real framework or code changes.
+
+## Overlap Versus Net-New Surface
+
+Some MCAF skills overlap conceptually with areas that already exist in `dotnet-skills`, but they operate at a different layer.
+
+### Conceptual overlap with existing `dotnet-*` skills
+
+| MCAF skill | Closest current `dotnet-skills` surface | Boundary |
+|---|---|---|
+| `mcaf-architecture-overview` | `dotnet-architecture` | MCAF defines repo architecture docs and decision shape; `dotnet-architecture` covers actual .NET solution structure and technical design |
+| `mcaf-code-review` | `dotnet-code-review` | MCAF defines review process and merge hygiene; `dotnet-code-review` reviews .NET code changes for bugs and regressions |
+| `mcaf-testing` | `dotnet-quality-ci`, test-framework skills such as `dotnet-xunit`, `dotnet-nunit`, `dotnet-mstest`, `dotnet-tunit` | MCAF defines verification policy; `dotnet-*` skills define concrete .NET test and CI implementation |
+| `mcaf-ci-cd` | `dotnet-quality-ci`, `dotnet-project-setup` | MCAF defines release-flow and governance policy; `dotnet-*` skills wire concrete .NET pipeline commands and quality gates |
+| `mcaf-solution-governance` | `dotnet-project-setup` | MCAF defines root/local `AGENTS.md`, rule precedence, and repo policy; `dotnet-project-setup` defines solution and project structure |
+| `mcaf-solid-maintainability` | `dotnet-complexity`, analyzer skills | MCAF defines maintainability expectations; `dotnet-*` skills implement concrete metrics, analyzers, and refactoring mechanics |
+| `mcaf-security-baseline` | `dotnet-codeql`, analyzer and platform security skills | MCAF defines baseline security process; `dotnet-*` skills cover concrete .NET tooling and framework-specific security work |
+| `mcaf-observability` | platform/runtime skills such as `dotnet-aspnet-core`, `dotnet-worker-services`, `dotnet-aspire`, `dotnet-orleans` | MCAF defines telemetry policy; `dotnet-*` skills implement logging, tracing, metrics, and diagnostics per framework |
+
+### Surfaces that are effectively new relative to this catalog
+
+These MCAF skills do not have a close one-to-one equivalent in the current `dotnet-skills` catalog and should stay represented as MCAF-native governance capabilities:
+
+- `mcaf-agile-delivery`
+- `mcaf-devex`
+- `mcaf-documentation`
+- `mcaf-feature-spec`
+- `mcaf-human-review-planning`
+- `mcaf-ml-ai-delivery`
+- `mcaf-nfr`
+- `mcaf-source-control`
+- `mcaf-ui-ux`
+
+Treat those as genuinely additive. They extend repo workflow and delivery governance rather than duplicating .NET implementation guidance.
