@@ -169,7 +169,7 @@ skills/<skill-name>/
 
 <!-- BEGIN GENERATED CATALOG -->
 
-This catalog currently contains **73** skills.
+This catalog currently contains **74** skills.
 
 ### Core
 
@@ -180,6 +180,7 @@ This catalog currently contains **73** skills.
 | [`dotnet-code-review`](skills/dotnet-code-review/) | `1.0.0` | Review .NET changes for bugs, regressions, architectural drift, missing tests, incorrect async or disposal behavior, and platform-specific pitfalls before you approve or merge them. |
 | [`dotnet-managedcode-communication`](skills/dotnet-managedcode-communication/) | `1.0.0` | Use ManagedCode.Communication when a .NET application needs explicit result objects, structured errors, and predictable service or API boundaries instead of exception-driven control flow. |
 | [`dotnet-managedcode-mimetypes`](skills/dotnet-managedcode-mimetypes/) | `1.0.0` | Use ManagedCode.MimeTypes when a .NET application needs consistent MIME type detection, extension mapping, and content-type decisions for uploads, downloads, or HTTP responses. |
+| [`dotnet-mcaf`](skills/dotnet-mcaf/) | `1.0.0` | Adopt MCAF in a .NET repository with the right AGENTS.md layout, repo-native docs, skill installation flow, verification rules, and non-trivial task workflow. |
 | [`dotnet-microsoft-extensions`](skills/dotnet-microsoft-extensions/) | `1.0.0` | Use the Microsoft.Extensions stack correctly across Generic Host, dependency injection, configuration, logging, options, HttpClientFactory, and other shared infrastructure patterns. |
 | [`dotnet-project-setup`](skills/dotnet-project-setup/) | `1.0.0` | Create or reorganize .NET solutions with clean project boundaries, repeatable SDK settings, and a maintainable baseline for libraries, apps, tests, CI, and local development. |
 
@@ -407,6 +408,7 @@ This catalog builds on the work of many open-source projects and their authors:
 
 | Project | Authors | Description |
 |---------|---------|-------------|
+| [MCAF](https://mcaf.managed-code.com/) | Managed Code | Framework for building real software with AI coding agents through repo-native context, verification, `AGENTS.md`, and skills |
 | [dotnet/skills](https://github.com/dotnet/skills) | Microsoft, .NET team | Official .NET skills repository that inspired our agent format and skill structure |
 | [Agent Skills Standard](https://agentskills.io) | Anthropic | Open specification for portable agent skill packages |
 | [Claude Code](https://code.claude.com) | Anthropic | Subagent architecture that shaped our orchestration agent design |

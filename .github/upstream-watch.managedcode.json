@@ -35,7 +35,20 @@
       "skills": [
         "dotnet-managedcode-orleans-graph"
       ]
+    },
+    {
+      "source": "https://github.com/managedcode/MCAF",
+      "skills": [
+        "dotnet-mcaf"
+      ]
     }
   ],
-  "documentation": []
+  "documentation": [
+    {
+      "source": "https://mcaf.managed-code.com/",
+      "skills": [
+        "dotnet-mcaf"
+      ]
+    }
+  ]
 }

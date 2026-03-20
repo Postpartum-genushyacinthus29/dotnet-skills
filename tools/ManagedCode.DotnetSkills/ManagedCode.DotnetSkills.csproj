@@ -14,7 +14,7 @@
     <Authors>ManagedCode</Authors>
     <Company>ManagedCode</Company>
     <Description>Install and manage the dotnet-skills catalog as a global .NET CLI tool.</Description>
-    <PackageTags>dotnet;skills;codex;ai</PackageTags>
+    <PackageTags>dotnet;skills;codex;ai;mcaf</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/managedcode/dotnet-skills</PackageProjectUrl>
     <RepositoryUrl>https://github.com/managedcode/dotnet-skills.git</RepositoryUrl>

@@ -298,6 +298,15 @@
       "path": "skills/dotnet-maui/"
     },
     {
+      "name": "dotnet-mcaf",
+      "title": "MCAF for .NET Repositories",
+      "version": "1.0.0",
+      "category": "Core",
+      "description": "Adopt MCAF in a .NET repository with the right AGENTS.md layout, repo-native docs, skill installation flow, verification rules, and non-trivial task workflow.",
+      "compatibility": "Best for .NET repositories that want a durable AI-development framework with explicit instructions, verification gates, and versioned repo context.",
+      "path": "skills/dotnet-mcaf/"
+    },
+    {
       "name": "dotnet-mcp",
       "title": "MCP C# SDK for .NET",
       "version": "1.1.0",
@@ -677,7 +686,7 @@
     {
       "name": "core",
       "title": "Core package",
-      "description": "Install all 7 skills from the Core category in one command.",
+      "description": "Install all 8 skills from the Core category in one command.",
       "kind": "category",
       "sourceCategory": "Core",
       "skills": [
@@ -686,6 +695,7 @@
         "dotnet-code-review",
         "dotnet-managedcode-communication",
         "dotnet-managedcode-mimetypes",
+        "dotnet-mcaf",
         "dotnet-microsoft-extensions",
         "dotnet-project-setup"
       ]
