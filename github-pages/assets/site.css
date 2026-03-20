@@ -11,9 +11,9 @@
   --accent-soft: rgba(245, 100, 56, 0.11);
   --border: rgba(38, 33, 53, 0.08);
   --border-strong: rgba(38, 33, 53, 0.14);
-  --shadow-sm: 0 18px 38px rgba(33, 27, 43, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.7);
-  --shadow-md: 0 28px 74px rgba(33, 27, 43, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.75);
-  --shadow-lg: 0 36px 96px rgba(33, 27, 43, 0.14);
+  --shadow-sm: 0 10px 24px rgba(33, 27, 43, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.72);
+  --shadow-md: 0 18px 40px rgba(33, 27, 43, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.76);
+  --shadow-lg: 0 24px 56px rgba(33, 27, 43, 0.12);
   --radius-sm: 14px;
   --radius-md: 32px;
   --radius-lg: 44px;
@@ -434,6 +434,7 @@ body.page-home .page-lead {
 .directory-links {
   display: grid;
   gap: 24px;
+  align-items: start;
 }
 
 .panel-grid {
@@ -445,7 +446,7 @@ body.page-home .page-lead {
 }
 
 .directory-grid {
-  grid-template-columns: repeat(auto-fit, minmax(min(430px, 100%), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(390px, 100%), 1fr));
 }
 
 .agent-grid {
@@ -462,11 +463,12 @@ body.page-agents .agent-grid {
   overflow: hidden;
   display: grid;
   align-content: start;
-  gap: 22px;
-  padding: 34px;
-  border-radius: 30px;
-  height: 100%;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(252, 248, 243, 0.82));
+  gap: 16px;
+  padding: 26px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(38, 33, 53, 0.08);
+  backdrop-filter: none;
   transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
 }
 
@@ -490,39 +492,38 @@ body.page-agents .agent-grid {
 .sidebar-card:hover,
 .credits-block:hover,
 .panel:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 26px 58px rgba(33, 27, 43, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.72);
-  border-color: rgba(245, 100, 56, 0.12);
+  transform: translateY(-1px);
+  box-shadow: 0 16px 34px rgba(33, 27, 43, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.72);
+  border-color: rgba(245, 100, 56, 0.16);
 }
 
 .directory-card h3,
 .directory-card h4 {
   margin: 0;
-  font-size: 1.72rem;
-  line-height: 1.14;
-  letter-spacing: -0.025em;
-  font-weight: 620;
+  font-size: 1.54rem;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  font-weight: 610;
   overflow-wrap: anywhere;
   word-break: break-word;
 }
 
 .directory-card p {
   margin: 0;
-  font-size: 1.13rem;
-  line-height: 1.62;
+  font-size: 1rem;
+  line-height: 1.56;
 }
 
 .card-summary {
-  min-height: calc(1.62em * 5);
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 5;
+  -webkit-line-clamp: 4;
   overflow: hidden;
 }
 
 .agent-card {
   gap: 18px;
-  padding: 32px;
+  padding: 28px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(253, 249, 244, 0.86));
 }
 
@@ -594,20 +595,20 @@ body.page-agents .agent-grid {
 
 .agent-card .card-actions .button {
   width: auto;
-  min-height: 48px;
-  padding-inline: 20px;
+  min-height: 44px;
+  padding-inline: 18px;
 }
 
 .card-top {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: start;
-  gap: 16px 20px;
+  gap: 12px 16px;
 }
 
 .card-top > :first-child {
   display: grid;
-  gap: 10px;
+  gap: 8px;
   min-width: 0;
 }
 
@@ -623,12 +624,12 @@ body.page-agents .agent-grid {
   display: inline-flex;
   align-items: center;
   justify-self: end;
-  min-height: 36px;
-  padding: 0 12px;
+  min-height: 32px;
+  padding: 0 10px;
   border-radius: 999px;
-  background: rgba(245, 100, 56, 0.08);
-  border: 1px solid rgba(245, 100, 56, 0.08);
-  font-size: 0.84rem;
+  background: rgba(245, 100, 56, 0.07);
+  border: 1px solid rgba(245, 100, 56, 0.1);
+  font-size: 0.78rem;
   font-weight: 600;
   color: var(--accent-strong);
   flex: 0 0 auto;
@@ -639,13 +640,13 @@ body.page-agents .agent-grid {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 10px 14px;
+  padding: 8px 12px;
   border-radius: 999px;
   background: rgba(38, 33, 53, 0.05);
   border: 1px solid rgba(38, 33, 53, 0.06);
   color: var(--text-soft);
-  font-size: 0.95rem;
-  font-weight: 540;
+  font-size: 0.88rem;
+  font-weight: 530;
   max-width: 100%;
   overflow-wrap: anywhere;
   word-break: break-word;
@@ -663,19 +664,26 @@ body.page-agents .agent-grid {
 }
 
 .chip-row {
-  margin-top: auto;
-  gap: 10px;
+  gap: 8px;
+}
+
+.skill-meta-row {
+  margin-top: 4px;
+}
+
+.skill-command-row {
+  margin-top: -2px;
 }
 
 .card-actions {
-  margin-top: auto;
+  margin-top: 2px;
   align-self: end;
-  gap: 12px;
+  gap: 10px;
 }
 
 .card-actions .button {
-  min-height: 50px;
-  padding-inline: 22px;
+  min-height: 44px;
+  padding-inline: 18px;
 }
 
 .button,
@@ -692,9 +700,9 @@ body.page-agents .agent-grid {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 52px;
-  padding: 0 24px;
-  font-weight: 580;
+  min-height: 46px;
+  padding: 0 20px;
+  font-weight: 560;
   letter-spacing: -0.01em;
 }
 
@@ -706,7 +714,7 @@ body.page-agents .agent-grid {
 .button-primary {
   background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
   color: #fff;
-  box-shadow: 0 14px 28px rgba(245, 100, 56, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  box-shadow: 0 10px 20px rgba(245, 100, 56, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
 
 .button-ghost,
@@ -729,14 +737,14 @@ body.page-agents .agent-grid {
 
 .search-input {
   width: 100%;
-  min-height: 62px;
-  padding: 0 22px;
-  border-radius: 22px;
+  min-height: 58px;
+  padding: 0 20px;
+  border-radius: 18px;
   border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.88);
   color: var(--text);
   font: inherit;
-  font-size: 1.06rem;
+  font-size: 1rem;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72), var(--shadow-sm);
 }
 
@@ -752,13 +760,14 @@ body.page-agents .agent-grid {
 }
 
 .filter-tab {
-  padding: 12px 19px;
+  padding: 10px 16px;
   border: 1px solid rgba(38, 33, 53, 0.06);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.84);
   color: var(--text-soft);
   font: inherit;
-  font-weight: 540;
+  font-size: 0.96rem;
+  font-weight: 530;
   box-shadow: var(--shadow-sm);
   cursor: pointer;
 }
@@ -868,13 +877,14 @@ body.page-agents .agent-grid {
   align-items: center;
   flex: 1 1 280px;
   min-width: 0;
-  min-height: 48px;
-  padding: 13px 16px;
-  border-radius: 16px;
+  min-height: 42px;
+  padding: 10px 14px;
+  border-radius: 14px;
   background: linear-gradient(135deg, #18182f 0%, #1f1f3c 100%);
   color: #ffffff;
   overflow-x: auto;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  font-size: 0.92rem;
 }
 
 .sidebar-stack {

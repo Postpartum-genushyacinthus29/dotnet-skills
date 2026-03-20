@@ -619,9 +619,11 @@ def render_skill_card(skill: dict, root_prefix: str, quick_view: bool = True) ->
           <span class="card-version">v{escape_html(skill['version'])}</span>
         </div>
         <p class="card-summary">{escape_html(summary)}</p>
-        <div class="chip-row">
+        <div class="chip-row skill-meta-row">
           <a class="chip" href="{escape_html(category_href)}">{escape_html(skill['category'])}</a>
-          <span class="chip command-chip">{escape_html(install_command)}</span>
+        </div>
+        <div class="command-row skill-command-row">
+          <code>{escape_html(install_command)}</code>
         </div>
         <div class="card-actions">
           {"".join(actions)}
